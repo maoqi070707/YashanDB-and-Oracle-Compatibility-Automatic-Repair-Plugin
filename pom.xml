@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Spring Boot 父工程（核心依赖管理） -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.4</version> <!-- 主流稳定版，适配JDK17 -->
+        <relativePath/>
+    </parent>
+
+    <groupId>com.yashan.sqlfix</groupId>
+    <artifactId>sql-fix-plugin</artifactId>
+    <version>1.0.0</version>
+    <name>YashanDB Oracle兼容修复插件</name>
+
+    <properties>
+        <java.version>17</java.version>
+        <antlr4.version>4.13.1</antlr4.version> <!-- ANTLR稳定版 -->
+        <yashan-jdbc.version>1.9.3</yashan-jdbc.version> <!-- YashanDB JDBC最新版 -->
+    </properties>
+
+    <dependencies>
+        <!-- 1. Spring Boot 核心（web + 基础功能） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId> <!-- 参数校验 -->
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional> <!-- 配置提示 -->
+        </dependency>
+
+        <!-- 2. SQL解析核心（ANTLR4，数据库插件标配） -->
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr4.version}</version>
+        </dependency>
+        <!-- ANTLR4 代码生成插件（编译时生成解析器） -->
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-maven-plugin</artifactId>
+            <version>${antlr4.version}</version>
+        </dependency>
+
+        <!-- 3. YashanDB 连接核心 -->
+        <dependency>
+            <groupId>com.yashandb</groupId>
+            <artifactId>yashandb-jdbc</artifactId>
+            <version>${yashan-jdbc.version}</version>
+            <scope>system</scope> <!-- 本地jar，需手动安装 -->
+            <systemPath>${project.basedir}/lib/yashandb-jdbc-1.9.3.jar</systemPath> <!-- 建议把jar放项目lib目录 -->
+        </dependency>
+
+        <!-- 4. 工具类（简化开发） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.26</version> <!-- 常用工具：文件读取、字符串处理 -->
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version> <!-- JSON解析，返回结果用 -->
+        </dependency>
+
+        <!-- 5. 测试依赖（验证功能） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Spring Boot 打包插件（生成可执行jar） -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+            </plugin>
+
+            <!-- ANTLR4 代码生成插件（自动生成SQL解析器） -->
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${antlr4.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 指定Oracle语法文件路径 -->
+                            <sourceDirectory>src/main/resources/antlr4</sourceDirectory>
+                            <!-- 生成解析器的包名 -->
+                            <packageName>com.yashan.sqlfix.core.parser</packageName>
+                            <visitor>true</visitor> <!-- 生成Visitor（核心遍历AST） -->
+                            <listener>true</listener> <!-- 生成Listener（可选） -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

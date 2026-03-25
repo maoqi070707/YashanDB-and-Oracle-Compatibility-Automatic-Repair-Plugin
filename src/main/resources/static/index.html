@@ -1,0 +1,4116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YashanDB Oracle兼容修复工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.dark-theme {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        body.dark-theme .container {
+            background-color: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme h1 {
+            color: #e0e0e0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme label {
+            color: #e0e0e0;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 200px;
+            background-color: white;
+            color: #333;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-family: 'Courier New', monospace;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme textarea {
+            background-color: #3d3d3d;
+            color: #e0e0e0;
+            border-color: #555;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        body.dark-theme textarea:focus {
+            border-color: #64b5f6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.2);
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #1976D2;
+            color: white;
+            padding: 10px 20px;
+            border: 2px solid #1976D2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        button:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme button {
+            background-color: #1565c0;
+            border-color: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme button:hover {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.4);
+        }
+        body.dark-theme button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .result {
+            background-color: #3d3d3d;
+        }
+        .result h2 {
+            margin-top: 0;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .result h2 {
+            color: #e0e0e0;
+        }
+        .split-view {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .split-panel {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            background-color: white;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        body.dark-theme .split-panel {
+            background-color: #3d3d3d;
+            border-color: #555;
+        }
+        .split-panel h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        body.dark-theme .split-panel h3 {
+            color: #e0e0e0;
+            border-bottom-color: #555;
+        }
+        .sql-content {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            min-height: 300px;
+            overflow-x: auto;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .sql-content {
+            background-color: #4d4d4d;
+        }
+        .error {
+            color: #ff6b6b;
+            margin-top: 10px;
+        }
+        body.dark-theme .error {
+            color: #ff8787;
+        }
+        /* 语法高亮样式 */
+        .sql-keyword {
+            color: #64b5f6;
+            font-weight: bold;
+        }
+        body.dark-theme .sql-keyword {
+            color: #90caf9;
+        }
+        .sql-function {
+            color: #ba68c8;
+            font-weight: bold;
+        }
+        body.dark-theme .sql-function {
+            color: #ce93d8;
+        }
+        .sql-type {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        body.dark-theme .sql-type {
+            color: #81c784;
+        }
+        .sql-string {
+            color: #e57373;
+        }
+        body.dark-theme .sql-string {
+            color: #ff8a80;
+        }
+        .sql-number {
+            color: #ff9800;
+        }
+        body.dark-theme .sql-number {
+            color: #ffb74d;
+        }
+        /* 差异标注样式 */
+        .diff-original {
+            background-color: #ffdddd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        body.dark-theme .diff-original {
+            background-color: #4e342e;
+        }
+        .diff-fixed {
+            background-color: #ddffdd;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        body.dark-theme .diff-fixed {
+            background-color: #2e4e34;
+        }
+        /* 问题分级标签 */
+        .issue-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .issue-severe {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        .issue-medium {
+            background-color: #ffd93d;
+            color: black;
+        }
+        .issue-minor {
+            background-color: #6bcb77;
+            color: white;
+        }
+        .issues-list {
+            margin-top: 15px;
+        }
+        .issue-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .issue-item {
+            background-color: #3d3d3d;
+        }
+        /* 批量处理进度样式 */
+        .progress-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .progress-container {
+            background-color: #3d3d3d;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .progress-bar {
+            background-color: #4d4d4d;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .progress-info {
+            color: #b0b0b0;
+        }
+        .file-status-list {
+            margin-top: 20px;
+        }
+        .file-status-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .file-status-item {
+            background-color: #3d3d3d;
+        }
+        .file-status-icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .file-status-name {
+            flex: 1;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .file-status-name {
+            color: #e0e0e0;
+        }
+        .file-status-detail {
+            font-size: 12px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .file-status-detail {
+            color: #b0b0b0;
+        }
+        .summary-panel {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e8f5e8;
+            border-radius: 4px;
+            border: 1px solid #c8e6c9;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        body.dark-theme .summary-panel {
+            background-color: #2e4e34;
+            border-color: #388e3c;
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .summary-stat {
+            text-align: center;
+        }
+        .summary-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .summary-stat-value {
+            color: #81c784;
+        }
+        .summary-stat-label {
+            font-size: 14px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .summary-stat-label {
+            color: #b0b0b0;
+        }
+        .export-button {
+            background-color: #1976D2;
+            color: white;
+            padding: 10px 20px;
+            border: 2px solid #1976D2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .export-button:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+            transform: translateY(-2px);
+        }
+        .export-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .export-button {
+            background-color: #1565c0;
+            border-color: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .export-button:hover {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.4);
+        }
+        body.dark-theme .export-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+        }
+        /* 修复规则映射表样式 */
+        .rules-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .rules-container {
+            background-color: #3d3d3d;
+        }
+        .rules-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .rules-header h2 {
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .rules-header h2 {
+            color: #e0e0e0;
+        }
+        .rules-filters {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: white;
+            color: #333;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .filter-select {
+            background-color: #4d4d4d;
+            color: #e0e0e0;
+            border-color: #555;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        body.dark-theme .filter-select:focus {
+            border-color: #64b5f6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.2);
+        }
+        .search-input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 200px;
+            background-color: white;
+            color: #333;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .search-input {
+            background-color: #4d4d4d;
+            color: #e0e0e0;
+            border-color: #555;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        body.dark-theme .search-input:focus {
+            border-color: #64b5f6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.2);
+        }
+        .rules-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        body.dark-theme .rules-table {
+            background-color: #3d3d3d;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .rules-table th,
+        .rules-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        body.dark-theme .rules-table th,
+        body.dark-theme .rules-table td {
+            color: #e0e0e0;
+            border-bottom-color: #555;
+        }
+        .rules-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .rules-table th {
+            background-color: #4d4d4d;
+        }
+        .rules-table tr:hover {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .rules-table tr:hover {
+            background-color: #4d4d4d;
+        }
+        .rule-category {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .category-function {
+            background-color: #bbdefb;
+            color: #1565c0;
+        }
+        body.dark-theme .category-function {
+            background-color: #1565c0;
+            color: #bbdefb;
+        }
+        .category-syntax {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        body.dark-theme .category-syntax {
+            background-color: #2e7d32;
+            color: #c8e6c9;
+        }
+        .category-type {
+            background-color: #ffecb3;
+            color: #ef6c00;
+        }
+        body.dark-theme .category-type {
+            background-color: #ef6c00;
+            color: #ffecb3;
+        }
+        .rule-details {
+            display: none;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        body.dark-theme .rule-details {
+            background-color: #4d4d4d;
+            border-top-color: #555;
+        }
+        .rule-details.show {
+            display: block;
+        }
+        .rule-example {
+            margin-top: 15px;
+        }
+        .rule-example h4 {
+            margin-bottom: 10px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .rule-example h4 {
+            color: #e0e0e0;
+        }
+        .rule-example pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .rule-example pre {
+            background-color: #5d5d5d;
+        }
+        .expand-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #2196F3;
+            padding: 0;
+            transition: color 0.3s ease;
+        }
+        .expand-button:hover {
+            text-decoration: underline;
+        }
+        body.dark-theme .expand-button {
+            color: #64b5f6;
+        }
+        /* SQL验证结果样式 */
+        .validation-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .validation-success {
+            background-color: #e8f5e8;
+            border: 1px solid #c8e6c9;
+        }
+        body.dark-theme .validation-success {
+            background-color: #2e4e34;
+            border-color: #388e3c;
+        }
+        .validation-failure {
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+        }
+        body.dark-theme .validation-failure {
+            background-color: #4e342e;
+            border-color: #c62828;
+        }
+        .validation-icon {
+            font-size: 48px;
+        }
+        .validation-content {
+            flex: 1;
+        }
+        .validation-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+        .validation-success .validation-title {
+            color: #2e7d32;
+        }
+        body.dark-theme .validation-success .validation-title {
+            color: #81c784;
+        }
+        .validation-failure .validation-title {
+            color: #c62828;
+        }
+        body.dark-theme .validation-failure .validation-title {
+            color: #ef9a9a;
+        }
+        .validation-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .validation-info {
+            color: #b0b0b0;
+        }
+        .error-details {
+            display: none;
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .error-details {
+            background-color: #4d4d4d;
+        }
+        .error-details.show {
+            display: block;
+        }
+        .error-message {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .error-message {
+            color: #e0e0e0;
+        }
+        .suggested-rules {
+            margin-top: 15px;
+        }
+        .suggested-rules h4 {
+            margin-bottom: 10px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .suggested-rules h4 {
+            color: #e0e0e0;
+        }
+        .suggested-rule-item {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .suggested-rule-item {
+            background-color: #1565c0;
+            color: #e3f2fd;
+        }
+        .validation-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .export-result-button {
+            background-color: #1976D2;
+            color: white;
+            padding: 10px 20px;
+            border: 1px solid #1565c0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .export-result-button:hover {
+            background-color: #1565c0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+        }
+        body.dark-theme .export-result-button {
+            background-color: #1565c0;
+            border-color: #0d47a1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .export-result-button:hover {
+            background-color: #0d47a1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        /* 操作日志样式 */
+        .logs-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .logs-container {
+            background-color: #3d3d3d;
+        }
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logs-header h2 {
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .logs-header h2 {
+            color: #e0e0e0;
+        }
+        .logs-filters {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .logs-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        body.dark-theme .filter-input {
+            background-color: #4d4d4d;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+        .clear-logs-button {
+            background-color: #f44336;
+            color: white;
+            padding: 8px 16px;
+            border: 2px solid #f44336;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .clear-logs-button:hover {
+            background-color: #d32f2f;
+            border-color: #d32f2f;
+            box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+            transform: translateY(-2px);
+        }
+        .clear-logs-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+        }
+        body.dark-theme .clear-logs-button {
+            background-color: #d32f2f;
+            border-color: #f44336;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .clear-logs-button:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.4);
+        }
+        body.dark-theme .clear-logs-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+        }
+        .export-logs-button {
+            background-color: #1976D2;
+            color: white;
+            padding: 8px 16px;
+            border: 2px solid #1976D2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .export-logs-button:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+            transform: translateY(-2px);
+        }
+        .export-logs-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .export-logs-button {
+            background-color: #1565c0;
+            border-color: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .export-logs-button:hover {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.4);
+        }
+        body.dark-theme .export-logs-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e0e0e0;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .timeline::before {
+            background-color: #555;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        body.dark-theme .timeline-item {
+            background-color: #3d3d3d;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #4CAF50;
+            transition: border-color 0.3s ease;
+        }
+        body.dark-theme .timeline-item::before {
+            border-color: #3d3d3d;
+        }
+        .timeline-item.failed::before {
+            background-color: #f44336;
+            box-shadow: 0 0 0 2px #f44336;
+        }
+        .timeline-item.processing::before {
+            background-color: #ff9800;
+            box-shadow: 0 0 0 2px #ff9800;
+        }
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .timeline-type {
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .timeline-type {
+            color: #e0e0e0;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .timeline-time {
+            color: #b0b0b0;
+        }
+        .timeline-content {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .timeline-content {
+            color: #e0e0e0;
+        }
+        .timeline-result {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .timeline-result.success {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        body.dark-theme .timeline-result.success {
+            background-color: #2e7d32;
+            color: #c8e6c9;
+        }
+        .timeline-result.failed {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+        body.dark-theme .timeline-result.failed {
+            background-color: #c62828;
+            color: #ffcdd2;
+        }
+        .timeline-result.processing {
+            background-color: #ffecb3;
+            color: #ef6c00;
+        }
+        body.dark-theme .timeline-result.processing {
+            background-color: #ef6c00;
+            color: #ffecb3;
+        }
+        .timeline-sql {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 100px;
+            overflow-y: auto;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .timeline-sql {
+            background-color: #4d4d4d;
+            color: #e0e0e0;
+        }
+        /* 数据统计仪表盘样式 */
+        .dashboard-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .dashboard-container {
+            background-color: #3d3d3d;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .dashboard-header h2 {
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .dashboard-header h2 {
+            color: #e0e0e0;
+        }
+        .dashboard-filters {
+            display: flex;
+            gap: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        body.dark-theme .stat-card {
+            background-color: #4d4d4d;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .stat-value {
+            color: #64b5f6;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .stat-label {
+            color: #b0b0b0;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        body.dark-theme .chart-card {
+            background-color: #4d4d4d;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .chart-title {
+            color: #e0e0e0;
+        }
+        .chart-content {
+            height: 300px;
+            position: relative;
+        }
+        .pie-chart {
+            width: 100%;
+            height: 100%;
+        }
+        .bar-chart {
+            width: 100%;
+            height: 100%;
+        }
+        .top-rules {
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        body.dark-theme .top-rules {
+            background-color: #4d4d4d;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .top-rules-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .top-rules-title {
+            color: #e0e0e0;
+        }
+        .top-rules-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .top-rule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: border-color 0.3s ease;
+        }
+        body.dark-theme .top-rule-item {
+            border-bottom-color: #555;
+        }
+        .top-rule-item:last-child {
+            border-bottom: none;
+        }
+        .top-rule-name {
+            font-size: 14px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .top-rule-name {
+            color: #e0e0e0;
+        }
+        .top-rule-count {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2196F3;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .top-rule-count {
+            color: #64b5f6;
+        }
+        /* 拖拽上传样式 */
+        .drop-zone {
+            border: 2px dashed #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        body.dark-theme .drop-zone {
+            border-color: #555;
+        }
+        .drop-zone.active {
+            border-color: #4CAF50;
+            background-color: #f0f9ff;
+        }
+        body.dark-theme .drop-zone.active {
+            background-color: #2e4e34;
+        }
+        .drop-zone-content {
+            text-align: center;
+            padding: 40px 20px;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .drop-zone-content {
+            color: #e0e0e0;
+        }
+        .browse-button {
+            background-color: #1976D2;
+            color: white;
+            padding: 5px 10px;
+            border: 2px solid #1976D2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .browse-button:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+            transform: translateY(-2px);
+        }
+        .browse-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .browse-button {
+            background-color: #1565c0;
+            border-color: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .browse-button:hover {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.4);
+        }
+        body.dark-theme .browse-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+        }
+        .file-list {
+            margin-top: 20px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        body.dark-theme .file-item {
+            background-color: #4d4d4d;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .file-name {
+            color: #e0e0e0;
+        }
+        .file-size {
+            font-size: 12px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .file-size {
+            color: #b0b0b0;
+        }
+        .remove-file {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: 2px solid #f44336;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .remove-file:hover {
+            background-color: #d32f2f;
+            border-color: #d32f2f;
+            box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+            transform: translateY(-2px);
+        }
+        .remove-file:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+        }
+        body.dark-theme .remove-file {
+            background-color: #d32f2f;
+            border-color: #f44336;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .remove-file:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.4);
+        }
+        body.dark-theme .remove-file:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+        }
+        #batchProcessButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #batchProcessButton:disabled:hover {
+            background-color: #cccccc;
+        }
+        /* 主题和布局控制样式 */
+        .theme-layout-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        body.dark-theme .theme-layout-controls {
+            background-color: #3d3d3d;
+        }
+        .theme-button {
+            background-color: #1976D2;
+            color: white;
+            padding: 8px 16px;
+            border: 2px solid #1976D2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .theme-button:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+            transform: translateY(-2px);
+        }
+        .theme-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .theme-button {
+            background-color: #1565c0;
+            border-color: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .theme-button:hover {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.4);
+        }
+        body.dark-theme .theme-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+        }
+        .layout-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .layout-control label {
+            font-size: 14px;
+            font-weight: normal;
+        }
+        #layoutSlider {
+            width: 150px;
+        }
+        #layoutValue {
+            font-size: 14px;
+            min-width: 60px;
+            text-align: right;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme #layoutValue {
+            color: #e0e0e0;
+        }
+        /* 引导流程样式 */
+        .guide-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+        .guide-step {
+            position: absolute;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 300px;
+            z-index: 1001;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        body.dark-theme .guide-step {
+            background-color: #3d3d3d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .guide-step::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+        }
+        .guide-step.top::after {
+            bottom: -20px;
+            left: 20px;
+            border-top-color: white;
+        }
+        body.dark-theme .guide-step.top::after {
+            border-top-color: #3d3d3d;
+        }
+        .guide-step.bottom::after {
+            top: -20px;
+            left: 20px;
+            border-bottom-color: white;
+        }
+        body.dark-theme .guide-step.bottom::after {
+            border-bottom-color: #3d3d3d;
+        }
+        .guide-step.left::after {
+            right: -20px;
+            top: 20px;
+            border-left-color: white;
+        }
+        body.dark-theme .guide-step.left::after {
+            border-left-color: #3d3d3d;
+        }
+        .guide-step.right::after {
+            left: -20px;
+            top: 20px;
+            border-right-color: white;
+        }
+        body.dark-theme .guide-step.right::after {
+            border-right-color: #3d3d3d;
+        }
+        .guide-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .guide-title {
+            color: #e0e0e0;
+        }
+        .guide-content {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        body.dark-theme .guide-content {
+            color: #b0b0b0;
+        }
+        .guide-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .guide-button {
+            padding: 8px 16px;
+            border: 2px solid;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .guide-button.next {
+            background-color: #1976D2;
+            color: white;
+            border-color: #1976D2;
+        }
+        .guide-button.next:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+            transform: translateY(-2px);
+        }
+        .guide-button.next:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .guide-button.next {
+            background-color: #1565c0;
+            border-color: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .guide-button.next:hover {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.4);
+        }
+        body.dark-theme .guide-button.next:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+        }
+        .guide-button.prev {
+            background-color: #f1f1f1;
+            color: #333;
+            border-color: #ddd;
+        }
+        .guide-button.prev:hover {
+            background-color: #e0e0e0;
+            border-color: #e0e0e0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        .guide-button.prev:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        body.dark-theme .guide-button.prev {
+            background-color: #4d4d4d;
+            color: #e0e0e0;
+            border-color: #555;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .guide-button.prev:hover {
+            background-color: #5d5d5d;
+            border-color: #5d5d5d;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        body.dark-theme .guide-button.prev:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .guide-button.close {
+            background-color: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        .guide-button.close:hover {
+            background-color: #d32f2f;
+            border-color: #d32f2f;
+            box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+            transform: translateY(-2px);
+        }
+        .guide-button.close:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+        }
+        body.dark-theme .guide-button.close {
+            background-color: #d32f2f;
+            border-color: #f44336;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .guide-button.close:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.4);
+        }
+        body.dark-theme .guide-button.close:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+        }
+        .highlight-element {
+            position: relative;
+            z-index: 1002;
+            box-shadow: 0 0 0 3px #4CAF50;
+            border-radius: 6px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 3px #4CAF50;
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(76, 175, 80, 0.5);
+            }
+            100% {
+                box-shadow: 0 0 0 3px #4CAF50;
+            }
+        }
+        .guide-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #1976D2;
+            color: white;
+            padding: 10px 20px;
+            border: 2px solid #1976D2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 999;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        .guide-toggle:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
+            transform: translateY(-2px);
+        }
+        .guide-toggle:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+        }
+        body.dark-theme .guide-toggle {
+            background-color: #1565c0;
+            border-color: #1976D2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        body.dark-theme .guide-toggle:hover {
+            background-color: #0d47a1;
+            border-color: #0d47a1;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.4);
+        }
+        body.dark-theme .guide-toggle:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.3);
+        }
+        
+        /* 响应式布局样式 */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+                padding: 20px;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .theme-layout-controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .layout-control {
+                width: 100%;
+            }
+            
+            #layoutSlider {
+                flex: 1;
+            }
+            
+            .split-view {
+                flex-direction: column;
+            }
+            
+            .split-panel {
+                margin-bottom: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .rules-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-select,
+            .search-input {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .logs-filters {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
+            
+            .logs-actions {
+                margin-top: 10px;
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .summary-stat {
+                text-align: left;
+                padding: 10px;
+                background-color: rgba(0,0,0,0.05);
+                border-radius: 4px;
+            }
+            
+            body.dark-theme .summary-stat {
+                background-color: rgba(255,255,255,0.05);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="appContainer">
+        <!-- 引导流程 -->
+        <div id="guideOverlay" class="guide-overlay">
+            <div id="guideStep1" class="guide-step">
+                <h3 class="guide-title">步骤 1：输入SQL语句</h3>
+                <p class="guide-content">在文本框中输入您需要修复的Oracle SQL语句，或上传SQL文件。</p>
+                <div class="guide-buttons">
+                    <button class="guide-button close" onclick="closeGuide()">关闭</button>
+                    <button class="guide-button next" onclick="nextGuideStep()">下一步</button>
+                </div>
+            </div>
+            <div id="guideStep2" class="guide-step">
+                <h3 class="guide-title">步骤 2：扫描问题</h3>
+                <p class="guide-content">点击「扫描问题」按钮，系统会分析SQL中的兼容性问题。</p>
+                <div class="guide-buttons">
+                    <button class="guide-button prev" onclick="prevGuideStep()">上一步</button>
+                    <button class="guide-button next" onclick="nextGuideStep()">下一步</button>
+                </div>
+            </div>
+            <div id="guideStep3" class="guide-step">
+                <h3 class="guide-title">步骤 3：修复SQL</h3>
+                <p class="guide-content">点击「修复SQL」按钮，系统会自动将Oracle SQL转换为YashanDB兼容的SQL。</p>
+                <div class="guide-buttons">
+                    <button class="guide-button prev" onclick="prevGuideStep()">上一步</button>
+                    <button class="guide-button next" onclick="nextGuideStep()">下一步</button>
+                </div>
+            </div>
+            <div id="guideStep4" class="guide-step">
+                <h3 class="guide-title">步骤 4：验证SQL</h3>
+                <p class="guide-content">点击「验证SQL」按钮，系统会验证修复后的SQL是否能在YashanDB中正常执行。</p>
+                <div class="guide-buttons">
+                    <button class="guide-button prev" onclick="prevGuideStep()">上一步</button>
+                    <button class="guide-button close" onclick="closeGuide()">完成</button>
+                </div>
+            </div>
+        </div>
+        <button id="guideToggle" class="guide-toggle" onclick="showGuide()">重新显示引导</button>
+        
+        <!-- 主题和布局控制 -->
+        <div class="theme-layout-controls">
+            <button id="themeToggle" class="theme-button" onclick="toggleTheme()">切换到深色主题</button>
+            <div class="layout-control">
+                <label for="layoutSlider">面板宽度比例：</label>
+                <input type="range" id="layoutSlider" min="30" max="70" value="50" oninput="adjustLayout(this.value)">
+                <span id="layoutValue">50:50</span>
+            </div>
+        </div>
+        <h1>YashanDB Oracle兼容修复工具</h1>
+        
+        <div class="form-group">
+            <label for="sqlInput">输入SQL语句：</label>
+            <textarea id="sqlInput" placeholder="请输入Oracle SQL语句..."></textarea>
+            <button onclick="scanSql()">扫描问题</button>
+            <button onclick="convertSql()">修复SQL</button>
+            <button onclick="validateSql()">验证SQL</button>
+        </div>
+        
+        <div class="form-group">
+            <label for="sqlFile">或上传SQL文件：</label>
+            <input type="file" id="sqlFile" accept=".sql">
+            <button onclick="uploadFile()">上传修复</button>
+        </div>
+        
+        <div class="form-group">
+            <label>批量上传SQL文件：</label>
+            <div id="dropZone" class="drop-zone">
+                <div class="drop-zone-content">
+                    <p>拖拽文件到此处或 <button class="browse-button" onclick="document.getElementById('batchFiles').click()">浏览文件</button></p>
+                    <input type="file" id="batchFiles" accept=".sql" multiple style="display: none;">
+                </div>
+                <div id="fileList" class="file-list">
+                    <!-- 文件列表将通过JavaScript动态添加 -->
+                </div>
+            </div>
+            <button onclick="batchUploadFiles()" id="batchProcessButton" disabled>批量处理</button>
+        </div>
+        
+        <div class="result" id="result">
+            <h2>修复结果</h2>
+            <div id="resultContent"></div>
+        </div>
+        
+        <!-- 修复规则可视化映射表 -->
+        <div class="rules-container">
+            <div class="rules-header">
+                <h2>修复规则映射表</h2>
+                <div class="rules-filters">
+                    <select class="filter-select" id="categoryFilter" onchange="filterRules()">
+                        <option value="all">所有分类</option>
+                        <option value="function">函数</option>
+                        <option value="syntax">语法</option>
+                        <option value="type">类型</option>
+                    </select>
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索规则..." onkeyup="filterRules()">
+                </div>
+            </div>
+            <table class="rules-table" id="rulesTable">
+                <thead>
+                    <tr>
+                        <th>分类</th>
+                        <th>Oracle 语法</th>
+                        <th>YashanDB 语法</th>
+                        <th>适用场景</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="rulesTableBody">
+                    <!-- 规则将通过JavaScript动态添加 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 数据统计可视化仪表盘 -->
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h2>数据统计仪表盘</h2>
+                <div class="dashboard-filters">
+                    <select class="filter-select" id="timeFilter" onchange="updateDashboard()">
+                        <option value="day">按日</option>
+                        <option value="week">按周</option>
+                        <option value="month">按月</option>
+                    </select>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSqlCount">0</div>
+                    <div class="stat-label">累计处理SQL条数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalFileCount">0</div>
+                    <div class="stat-label">累计处理文件数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="successRate">0%</div>
+                    <div class="stat-label">修复成功率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRulesCount">0</div>
+                    <div class="stat-label">应用修复规则数</div>
+                </div>
+            </div>
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">问题分级占比</div>
+                    <div class="chart-content">
+                        <canvas id="issuePieChart" class="pie-chart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">修复规则使用频次</div>
+                    <div class="chart-content">
+                        <canvas id="ruleBarChart" class="bar-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="top-rules">
+                <div class="top-rules-title">高频修复规则 TOP10</div>
+                <ul class="top-rules-list" id="topRulesList">
+                    <!-- 规则将通过JavaScript动态添加 -->
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 操作日志可视化 -->
+        <div class="logs-container">
+            <div class="logs-header">
+                <h2>操作日志</h2>
+                <div class="logs-filters">
+                    <select class="filter-select" id="logTypeFilter" onchange="filterLogs()">
+                        <option value="all">所有类型</option>
+                        <option value="scan">SQL扫描</option>
+                        <option value="convert">SQL修复</option>
+                        <option value="validate">SQL验证</option>
+                        <option value="upload">文件上传</option>
+                        <option value="batch">批量处理</option>
+                    </select>
+                    <input type="text" class="filter-input" id="logSearchInput" placeholder="搜索日志..." onkeyup="filterLogs()">
+                    <div class="logs-actions">
+                        <button class="clear-logs-button" onclick="clearLogs()">清空日志</button>
+                        <button class="export-logs-button" onclick="exportLogs()">导出日志</button>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline" id="logsTimeline">
+                <!-- 日志将通过JavaScript动态添加 -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 节流函数 - 限制函数执行频率
+        function throttle(func, delay) {
+            let lastCall = 0;
+            return function(...args) {
+                const now = Date.now();
+                if (now - lastCall >= delay) {
+                    lastCall = now;
+                    return func.apply(this, args);
+                }
+            };
+        }
+        
+        // 防抖函数 - 延迟函数执行
+        function debounce(func, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+        
+        // 页面加载时测试数据库连接
+        window.onload = function() {
+            testDatabaseConnection();
+        };
+        
+        // 测试数据库连接
+        function testDatabaseConnection() {
+            fetch('/api/sql/test-connection')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('数据库连接测试结果:', data);
+                    if (data.success) {
+                        console.log('数据库连接成功');
+                    } else {
+                        console.log('数据库连接失败:', data.message);
+                        // 可以在这里显示连接状态提示
+                    }
+                })
+                .catch(error => {
+                    console.error('连接测试失败:', error);
+                });
+        }
+        
+        // SQL关键字、函数和类型列表
+        const sqlKeywords = ['SELECT', 'FROM', 'WHERE', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'ALTER', 'DROP', 'TABLE', 'VIEW', 'INDEX', 'TRIGGER', 'PROCEDURE', 'FUNCTION', 'BEGIN', 'END', 'IF', 'ELSE', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'ON', 'AND', 'OR', 'NOT', 'IN', 'LIKE', 'BETWEEN', 'IS', 'NULL', 'ORDER', 'BY', 'GROUP', 'HAVING', 'LIMIT', 'OFFSET'];
+        const sqlFunctions = ['DECODE', 'NVL', 'SYSDATE', 'TO_DATE', 'TO_CHAR', 'ROWNUM', 'RANK', 'DENSE_RANK', 'LEAD', 'LAG', 'LISTAGG', 'REGEXP_SUBSTR', 'REGEXP_REPLACE', 'COALESCE', 'CURRENT_TIMESTAMP', 'TO_TIMESTAMP', 'CAST', 'ROW_NUMBER', 'STRING_AGG', 'SUBSTRING'];
+        const sqlTypes = ['VARCHAR2', 'NUMBER', 'DATE', 'TIMESTAMP', 'CLOB', 'BLOB', 'VARCHAR', 'INTEGER', 'NUMERIC', 'TEXT', 'BYTEA'];
+        
+        // 语法高亮函数
+        function highlightSql(sql) {
+            console.log('highlightSql 输入:', sql, typeof sql);
+            if (!sql || typeof sql !== 'string') {
+                console.warn('highlightSql 接收到非字符串参数:', sql);
+                return '';
+            }
+            
+            let highlighted = sql;
+            
+            try {
+                // 高亮字符串
+                highlighted = highlighted.replace(/('.*?')/g, '<span class="sql-string">$1</span>');
+                
+                // 高亮数字
+                highlighted = highlighted.replace(/(\b\d+\.?\d*\b)/g, '<span class="sql-number">$1</span>');
+                
+                // 高亮关键字
+                sqlKeywords.forEach(keyword => {
+                    const regex = new RegExp('\\b' + keyword + '\\b', 'gi');
+                    highlighted = highlighted.replace(regex, '<span class="sql-keyword">' + keyword + '</span>');
+                });
+                
+                // 高亮函数
+                sqlFunctions.forEach(func => {
+                    const regex = new RegExp('\\b' + func + '\\b', 'gi');
+                    highlighted = highlighted.replace(regex, '<span class="sql-function">' + func + '</span>');
+                });
+                
+                // 高亮类型
+                sqlTypes.forEach(type => {
+                    const regex = new RegExp('\\b' + type + '\\b', 'gi');
+                    highlighted = highlighted.replace(regex, '<span class="sql-type">' + type + '</span>');
+                });
+            } catch (error) {
+                console.error('highlightSql 错误:', error);
+                return sql; // 返回原始SQL，避免显示错误
+            }
+            
+            return highlighted;
+        }
+        
+        // 获取问题等级标签
+        function getIssueLevelTag(level) {
+            switch(level) {
+                case 'severe':
+                    return '<span class="issue-tag issue-severe">严重</span>';
+                case 'medium':
+                    return '<span class="issue-tag issue-medium">中等</span>';
+                case 'minor':
+                    return '<span class="issue-tag issue-minor">轻微</span>';
+                default:
+                    return '<span class="issue-tag issue-medium">中等</span>';
+            }
+        }
+        
+        function scanSql() {
+            const sql = document.getElementById('sqlInput').value;
+            if (!sql) {
+                alert('请输入SQL语句');
+                return;
+            }
+            
+            fetch('/api/sql/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'sql=' + encodeURIComponent(sql)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('扫描API返回的数据:', data);
+                if (!data || !data.originalSql || typeof data.originalSql !== 'string') {
+                    document.getElementById('resultContent').innerHTML = '<div class="error">扫描失败：无效的响应数据</div>';
+                    return;
+                }
+                
+                let resultHtml = '<h3>扫描结果</h3>';
+                
+                // 问题分级提示
+                if (data.hasIssues) {
+                    resultHtml += '<div class="issues-list">';
+                    resultHtml += '<h4>发现的问题：</h4>';
+                    data.issues.forEach(issue => {
+                        resultHtml += '<div class="issue-item">';
+                        resultHtml += getIssueLevelTag(issue.level) + issue.description;
+                        resultHtml += '</div>';
+                    });
+                    resultHtml += '</div>';
+                } else {
+                    resultHtml += '<p style="color: green;">未发现兼容性问题</p>';
+                }
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>原始Oracle SQL</h3>';
+                // 简单模拟差异标注，实际应该根据API返回的差异信息
+                let originalHighlighted = data.originalSql
+                    .replace(/dual/g, '<span class="diff-original">dual</span>')
+                    .replace(/DECODE/g, '<span class="diff-original">DECODE</span>')
+                    .replace(/NVL/g, '<span class="diff-original">NVL</span>')
+                    .replace(/SYSDATE/g, '<span class="diff-original">SYSDATE</span>')
+                    .replace(/TO_DATE/g, '<span class="diff-original">TO_DATE</span>')
+                    .replace(/TO_CHAR/g, '<span class="diff-original">TO_CHAR</span>')
+                    .replace(/VARCHAR2/g, '<span class="diff-original">VARCHAR2</span>')
+                    .replace(/NUMBER/g, '<span class="diff-original">NUMBER</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(originalHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>修复后YashanDB SQL</h3>';
+                // 调用转换API获取修复后的SQL
+                fetch('/api/sql/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'sql=' + encodeURIComponent(sql)
+                })
+                .then(response => response.json())
+                .then(convertData => {
+                    console.log('转换API返回的数据:', convertData);
+                    if (!convertData || !convertData.fixedSql || typeof convertData.fixedSql !== 'string') {
+                        resultHtml += '<div class="sql-content">转换失败：无效的响应数据</div>';
+                        resultHtml += '</div>';
+                        resultHtml += '</div>';
+                        document.getElementById('resultContent').innerHTML = resultHtml;
+                        return;
+                    }
+                    
+                    console.log('fixedSql:', convertData.fixedSql);
+                    let fixedHighlighted = convertData.fixedSql
+                        .replace(/\(SELECT 1 AS dummy\)/g, '<span class="diff-fixed">(SELECT 1 AS dummy)</span>')
+                        .replace(/CASE/g, '<span class="diff-fixed">CASE</span>')
+                        .replace(/COALESCE/g, '<span class="diff-fixed">COALESCE</span>')
+                        .replace(/CURRENT_TIMESTAMP/g, '<span class="diff-fixed">CURRENT_TIMESTAMP</span>')
+                        .replace(/TO_TIMESTAMP/g, '<span class="diff-fixed">TO_TIMESTAMP</span>')
+                        .replace(/CAST/g, '<span class="diff-fixed">CAST</span>')
+                        .replace(/VARCHAR/g, '<span class="diff-fixed">VARCHAR</span>')
+                        .replace(/INTEGER/g, '<span class="diff-fixed">INTEGER</span>');
+                    resultHtml += '<div class="sql-content">' + highlightSql(fixedHighlighted) + '</div>';
+                    resultHtml += '</div>';
+                    resultHtml += '</div>';
+                    
+                    document.getElementById('resultContent').innerHTML = resultHtml;
+                })
+                .catch(error => {
+                    console.error('转换失败:', error);
+                    resultHtml += '<div class="sql-content">转换失败：' + error.message + '</div>';
+                    resultHtml += '</div>';
+                    resultHtml += '</div>';
+                    
+                    document.getElementById('resultContent').innerHTML = resultHtml;
+                });
+            })
+            .catch(error => {
+                console.error('扫描失败:', error);
+                document.getElementById('resultContent').innerHTML = '<div class="error">扫描失败：' + error.message + '</div>';
+            });
+        }
+        
+        function convertSql() {
+            console.log('开始执行convertSql函数');
+            const sql = document.getElementById('sqlInput').value;
+            console.log('输入的SQL:', sql, typeof sql);
+            if (!sql) {
+                alert('请输入SQL语句');
+                return;
+            }
+            
+            fetch('/api/sql/convert', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'sql=' + encodeURIComponent(sql)
+            })
+            .then(response => {
+                console.log('响应状态:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('后端返回的数据:', data, typeof data);
+                if (!data || typeof data !== 'object') {
+                    console.error('无效的响应数据格式:', data);
+                    document.getElementById('resultContent').innerHTML = '<div class="error">修复失败：无效的响应数据格式</div>';
+                    return;
+                }
+                
+                console.log('data.originalSql:', data.originalSql, typeof data.originalSql);
+                console.log('data.fixedSql:', data.fixedSql, typeof data.fixedSql);
+                
+                if (!data.originalSql || typeof data.originalSql !== 'string' || !data.fixedSql || typeof data.fixedSql !== 'string') {
+                    console.error('无效的响应数据字段:', data);
+                    document.getElementById('resultContent').innerHTML = '<div class="error">修复失败：无效的响应数据字段</div>';
+                    return;
+                }
+                
+                let resultHtml = '<h3>修复结果</h3>';
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>原始Oracle SQL</h3>';
+                // 简单模拟差异标注，实际应该根据API返回的差异信息
+                let originalHighlighted = data.originalSql
+                    .replace(/dual/g, '<span class="diff-original">dual</span>')
+                    .replace(/DECODE/g, '<span class="diff-original">DECODE</span>')
+                    .replace(/NVL/g, '<span class="diff-original">NVL</span>')
+                    .replace(/SYSDATE/g, '<span class="diff-original">SYSDATE</span>');
+                console.log('originalHighlighted:', originalHighlighted, typeof originalHighlighted);
+                resultHtml += '<div class="sql-content">' + highlightSql(originalHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>修复后YashanDB SQL</h3>';
+                let fixedHighlighted = data.fixedSql
+                    .replace(/\(SELECT 1 AS dummy\)/g, '<span class="diff-fixed">(SELECT 1 AS dummy)</span>')
+                    .replace(/CASE/g, '<span class="diff-fixed">CASE</span>')
+                    .replace(/COALESCE/g, '<span class="diff-fixed">COALESCE</span>')
+                    .replace(/CURRENT_TIMESTAMP/g, '<span class="diff-fixed">CURRENT_TIMESTAMP</span>');
+                console.log('fixedHighlighted:', fixedHighlighted, typeof fixedHighlighted);
+                resultHtml += '<div class="sql-content">' + highlightSql(fixedHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '</div>';
+                
+                document.getElementById('resultContent').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                console.error('修复失败:', error);
+                document.getElementById('resultContent').innerHTML = '<div class="error">修复失败：' + error.message + '</div>';
+            });
+        }
+        
+        function uploadFile() {
+            const fileInput = document.getElementById('sqlFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('请选择SQL文件');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/sql/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('上传API返回的数据:', data);
+                if (!data || !data.originalSql || typeof data.originalSql !== 'string' || !data.fixedSql || typeof data.fixedSql !== 'string') {
+                    document.getElementById('resultContent').innerHTML = '<div class="error">上传失败：无效的响应数据</div>';
+                    return;
+                }
+                
+                let resultHtml = '<h3>文件修复结果</h3>';
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>原始Oracle SQL</h3>';
+                let originalHighlighted = data.originalSql
+                    .replace(/dual/g, '<span class="diff-original">dual</span>')
+                    .replace(/DECODE/g, '<span class="diff-original">DECODE</span>')
+                    .replace(/NVL/g, '<span class="diff-original">NVL</span>')
+                    .replace(/SYSDATE/g, '<span class="diff-original">SYSDATE</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(originalHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>修复后YashanDB SQL</h3>';
+                let fixedHighlighted = data.fixedSql
+                    .replace(/\(SELECT 1 AS dummy\)/g, '<span class="diff-fixed">(SELECT 1 AS dummy)</span>')
+                    .replace(/CASE/g, '<span class="diff-fixed">CASE</span>')
+                    .replace(/COALESCE/g, '<span class="diff-fixed">COALESCE</span>')
+                    .replace(/CURRENT_TIMESTAMP/g, '<span class="diff-fixed">CURRENT_TIMESTAMP</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(fixedHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '</div>';
+                
+                document.getElementById('resultContent').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                console.error('上传失败:', error);
+                document.getElementById('resultContent').innerHTML = '<div class="error">上传失败：' + error.message + '</div>';
+            });
+        }
+        
+        function validateSql() {
+            const sql = document.getElementById('sqlInput').value;
+            if (!sql) {
+                alert('请输入SQL语句');
+                return;
+            }
+            
+            const startTime = performance.now();
+            
+            fetch('/api/sql/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'sql=' + encodeURIComponent(sql)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data || !data.originalSql) {
+                    document.getElementById('resultContent').innerHTML = '<div class="error">验证失败：无效的响应数据</div>';
+                    return;
+                }
+                
+                const endTime = performance.now();
+                const executionTime = (endTime - startTime).toFixed(2);
+                
+                let resultHtml = '<h3>验证结果</h3>';
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>验证SQL</h3>';
+                resultHtml += '<div class="sql-content">' + highlightSql(data.originalSql) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                
+                if (data.success) {
+                    resultHtml += `
+                        <div class="validation-result validation-success">
+                            <div class="validation-icon">✅</div>
+                            <div class="validation-content">
+                                <div class="validation-title">验证成功</div>
+                                <div class="validation-info">
+                                    <p>SQL可以在YashanDB中正常执行。</p>
+                                    <p>执行耗时：${executionTime}ms</p>
+                                </div>
+                                <div class="validation-actions">
+                                    <button class="export-result-button" onclick="exportValidationResult(${JSON.stringify(data)}, true, ${executionTime})">导出结果</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 分析错误信息，提供修复建议
+                    const errorMessage = data.fixedSql || '未知错误';
+                    const suggestedRules = getSuggestedRules(errorMessage);
+                    
+                    resultHtml += `
+                        <div class="validation-result validation-failure">
+                            <div class="validation-icon">❌</div>
+                            <div class="validation-content">
+                                <div class="validation-title">验证失败</div>
+                                <div class="validation-info">
+                                    <p>SQL无法在YashanDB中执行。</p>
+                                    <p>执行耗时：${executionTime}ms</p>
+                                    <button class="expand-button" onclick="toggleErrorDetails()">查看详细错误信息</button>
+                                </div>
+                                <div class="error-details" id="errorDetails">
+                                    <div class="error-message">${errorMessage}</div>
+                                    ${suggestedRules.length > 0 ? `
+                                        <div class="suggested-rules">
+                                            <h4>建议的修复规则：</h4>
+                                            ${suggestedRules.map(rule => `
+                                                <div class="suggested-rule-item">
+                                                    ${rule.oracleSyntax} → ${rule.yashanSyntax} (${rule.scenario})
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="validation-actions">
+                                    <button class="export-result-button" onclick="exportValidationResult(${JSON.stringify(data)}, false, ${executionTime}, '${errorMessage}')">导出结果</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                resultHtml += '</div>';
+                resultHtml += '</div>';
+                
+                document.getElementById('resultContent').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                document.getElementById('resultContent').innerHTML = '<div class="error">验证失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 切换错误详情显示
+        function toggleErrorDetails() {
+            const errorDetails = document.getElementById('errorDetails');
+            if (errorDetails) {
+                errorDetails.classList.toggle('show');
+            }
+        }
+        
+        // 根据错误信息获取建议的修复规则
+        function getSuggestedRules(errorMessage) {
+            const suggested = [];
+            const errorLower = errorMessage.toLowerCase();
+            
+            fixRules.forEach(rule => {
+                if (errorLower.includes(rule.oracleSyntax.toLowerCase())) {
+                    suggested.push(rule);
+                }
+            });
+            
+            return suggested;
+        }
+        
+        // 导出验证结果
+        function exportValidationResult(data, success, executionTime, errorMessage = '') {
+            const result = {
+                originalSql: data.originalSql,
+                success: success,
+                executionTime: executionTime + 'ms',
+                timestamp: new Date().toISOString(),
+                errorMessage: errorMessage
+            };
+            
+            // 转换为JSON字符串
+            const resultJson = JSON.stringify(result, null, 2);
+            
+            // 创建Blob对象
+            const blob = new Blob([resultJson], { type: 'application/json' });
+            
+            // 创建下载链接
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sql_validation_result_' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function batchUploadFiles() {
+            const fileInput = document.getElementById('batchFiles');
+            const files = fileInput.files;
+            if (files.length === 0) {
+                alert('请选择要上传的SQL文件');
+                return;
+            }
+            
+            // 显示进度容器
+            let progressHtml = '<h3>批量处理进度</h3>';
+            progressHtml += '<div class="progress-container">';
+            progressHtml += '<div class="progress-bar">';
+            progressHtml += '<div class="progress-fill" style="width: 0%"></div>';
+            progressHtml += '</div>';
+            progressHtml += '<div class="progress-info">';
+            progressHtml += '<span>进度：0%</span>';
+            progressHtml += '<span>剩余时间：计算中...</span>';
+            progressHtml += '</div>';
+            progressHtml += '<div class="file-status-list" id="fileStatusList">';
+            // 添加每个文件的初始状态
+            for (let i = 0; i < files.length; i++) {
+                progressHtml += '<div class="file-status-item">';
+                progressHtml += '<span class="file-status-icon">⌛</span>';
+                progressHtml += '<span class="file-status-name">' + files[i].name + '</span>';
+                progressHtml += '<span class="file-status-detail">处理中...</span>';
+                progressHtml += '</div>';
+            }
+            progressHtml += '</div>';
+            progressHtml += '</div>';
+            
+            document.getElementById('resultContent').innerHTML = progressHtml;
+            
+            // 模拟进度更新
+            let progress = 0;
+            const totalFiles = files.length;
+            const progressInterval = setInterval(() => {
+                progress += 100 / (totalFiles * 2); // 每个文件分两步处理
+                if (progress > 100) progress = 100;
+                
+                document.querySelector('.progress-fill').style.width = progress + '%';
+                document.querySelector('.progress-info span:first-child').textContent = '进度：' + Math.round(progress) + '%';
+                
+                // 计算剩余时间（模拟）
+                const remainingTime = Math.round((100 - progress) / (progress / 2));
+                document.querySelector('.progress-info span:last-child').textContent = '剩余时间：' + remainingTime + '秒';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 500);
+            
+            // 构建FormData
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            
+            // 发送请求
+            fetch('/api/sql/batch/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                
+                // 更新进度为100%
+                document.querySelector('.progress-fill').style.width = '100%';
+                document.querySelector('.progress-info span:first-child').textContent = '进度：100%';
+                document.querySelector('.progress-info span:last-child').textContent = '剩余时间：0秒';
+                
+                // 更新文件状态
+                const fileStatusList = document.getElementById('fileStatusList');
+                fileStatusList.innerHTML = '';
+                
+                let successCount = 0;
+                let failedCount = 0;
+                let warningCount = 0;
+                
+                data.forEach((result, index) => {
+                    let statusIcon = '✅';
+                    let statusClass = '';
+                    
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        failedCount++;
+                        statusIcon = '❌';
+                    }
+                    
+                    // 检查是否有警告（这里简单模拟，实际应该根据API返回）
+                    if (result.originalSql.includes('VARCHAR2') || result.originalSql.includes('NUMBER')) {
+                        warningCount++;
+                        statusIcon = '⚠️';
+                    }
+                    
+                    const statusItem = document.createElement('div');
+                    statusItem.className = 'file-status-item';
+                    statusItem.innerHTML = `
+                        <span class="file-status-icon">${statusIcon}</span>
+                        <span class="file-status-name">${files[index].name}</span>
+                        <span class="file-status-detail">${result.success ? '成功' : '失败'}</span>
+                    `;
+                    fileStatusList.appendChild(statusItem);
+                });
+                
+                // 添加汇总面板
+                const summaryHtml = `
+                    <div class="summary-panel">
+                        <h3>处理汇总</h3>
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${totalFiles}</div>
+                                <div class="summary-stat-label">总文件数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${successCount}</div>
+                                <div class="summary-stat-label">成功数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${failedCount}</div>
+                                <div class="summary-stat-label">失败数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${warningCount}</div>
+                                <div class="summary-stat-label">警告数</div>
+                            </div>
+                        </div>
+                        <button class="export-button" onclick="exportReport(${JSON.stringify(data)}, ${totalFiles}, ${successCount}, ${failedCount}, ${warningCount})">导出处理报告</button>
+                    </div>
+                `;
+                
+                document.getElementById('resultContent').insertAdjacentHTML('beforeend', summaryHtml);
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                document.getElementById('resultContent').innerHTML = '<div class="error">批量处理失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 导出处理报告
+        function exportReport(data, total, success, failed, warning) {
+            const report = {
+                totalFiles: total,
+                successCount: success,
+                failedCount: failed,
+                warningCount: warning,
+                timestamp: new Date().toISOString(),
+                files: data.map((result, index) => ({
+                    index: index + 1,
+                    success: result.success,
+                    originalSql: result.originalSql,
+                    fixedSql: result.fixedSql
+                }))
+            };
+            
+            // 转换为JSON字符串
+            const reportJson = JSON.stringify(report, null, 2);
+            
+            // 创建Blob对象
+            const blob = new Blob([reportJson], { type: 'application/json' });
+            
+            // 创建下载链接
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sql_fix_report_' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // 修复规则数据
+        const fixRules = [
+            {
+                id: 1,
+                category: 'function',
+                oracleSyntax: 'DECODE',
+                yashanSyntax: 'CASE',
+                scenario: '条件判断',
+                examples: [
+                    {
+                        input: 'SELECT DECODE(status, \'A\', \'Active\', \'Inactive\') FROM employees',
+                        output: 'SELECT CASE(status, \'A\', \'Active\', \'Inactive\') FROM employees'
+                    }
+                ]
+            },
+            {
+                id: 2,
+                category: 'function',
+                oracleSyntax: 'NVL',
+                yashanSyntax: 'COALESCE',
+                scenario: '空值处理',
+                examples: [
+                    {
+                        input: 'SELECT NVL(name, \'Unknown\') FROM employees',
+                        output: 'SELECT COALESCE(name, \'Unknown\') FROM employees'
+                    }
+                ]
+            },
+            {
+                id: 3,
+                category: 'function',
+                oracleSyntax: 'SYSDATE',
+                yashanSyntax: 'CURRENT_TIMESTAMP',
+                scenario: '获取当前时间',
+                examples: [
+                    {
+                        input: 'SELECT SYSDATE FROM dual',
+                        output: 'SELECT CURRENT_TIMESTAMP FROM (SELECT 1 AS dummy)'
+                    }
+                ]
+            },
+            {
+                id: 4,
+                category: 'function',
+                oracleSyntax: 'TO_DATE',
+                yashanSyntax: 'TO_TIMESTAMP',
+                scenario: '日期转换',
+                examples: [
+                    {
+                        input: 'SELECT TO_DATE(\'2023-01-01\', \'YYYY-MM-DD\') FROM dual',
+                        output: 'SELECT TO_TIMESTAMP(\'2023-01-01\', \'YYYY-MM-DD\') FROM (SELECT 1 AS dummy)'
+                    }
+                ]
+            },
+            {
+                id: 5,
+                category: 'function',
+                oracleSyntax: 'TO_CHAR',
+                yashanSyntax: 'CAST',
+                scenario: '类型转换',
+                examples: [
+                    {
+                        input: 'SELECT TO_CHAR(id) FROM employees',
+                        output: 'SELECT CAST(id AS VARCHAR) FROM employees'
+                    }
+                ]
+            },
+            {
+                id: 6,
+                category: 'function',
+                oracleSyntax: 'ROWNUM',
+                yashanSyntax: 'ROW_NUMBER() OVER ()',
+                scenario: '行号生成',
+                examples: [
+                    {
+                        input: 'SELECT ROWNUM, * FROM employees',
+                        output: 'SELECT ROW_NUMBER() OVER (), * FROM employees'
+                    }
+                ]
+            },
+            {
+                id: 7,
+                category: 'syntax',
+                oracleSyntax: 'DUAL',
+                yashanSyntax: '(SELECT 1 AS dummy)',
+                scenario: '单行单列表',
+                examples: [
+                    {
+                        input: 'SELECT 1 FROM dual',
+                        output: 'SELECT 1 FROM (SELECT 1 AS dummy)'
+                    }
+                ]
+            },
+            {
+                id: 8,
+                category: 'syntax',
+                oracleSyntax: 'ROWNUM',
+                yashanSyntax: 'LIMIT 1',
+                scenario: '限制返回行数',
+                examples: [
+                    {
+                        input: 'SELECT * FROM employees WHERE ROWNUM = 1',
+                        output: 'SELECT * FROM employees LIMIT 1'
+                    }
+                ]
+            },
+            {
+                id: 9,
+                category: 'syntax',
+                oracleSyntax: 'ROWID',
+                yashanSyntax: 'ctid',
+                scenario: '行标识符',
+                examples: [
+                    {
+                        input: 'SELECT ROWID FROM employees',
+                        output: 'SELECT ctid FROM employees'
+                    }
+                ]
+            },
+            {
+                id: 10,
+                category: 'syntax',
+                oracleSyntax: '序列.NEXTVAL',
+                yashanSyntax: 'nextval(\'序列\')',
+                scenario: '序列值生成',
+                examples: [
+                    {
+                        input: 'INSERT INTO employees(id) VALUES(emp_seq.NEXTVAL)',
+                        output: 'INSERT INTO employees(id) VALUES(nextval(\'emp_seq\'))'
+                    }
+                ]
+            },
+            {
+                id: 11,
+                category: 'type',
+                oracleSyntax: 'VARCHAR2',
+                yashanSyntax: 'VARCHAR',
+                scenario: '字符串类型',
+                examples: [
+                    {
+                        input: 'CREATE TABLE employees(name VARCHAR2(100))',
+                        output: 'CREATE TABLE employees(name VARCHAR(100))'
+                    }
+                ]
+            },
+            {
+                id: 12,
+                category: 'type',
+                oracleSyntax: 'NUMBER',
+                yashanSyntax: 'INTEGER/NUMERIC',
+                scenario: '数值类型',
+                examples: [
+                    {
+                        input: 'CREATE TABLE employees(id NUMBER(10), salary NUMBER)',
+                        output: 'CREATE TABLE employees(id INTEGER(10), salary NUMERIC)'
+                    }
+                ]
+            },
+            {
+                id: 13,
+                category: 'type',
+                oracleSyntax: 'DATE',
+                yashanSyntax: 'TIMESTAMP',
+                scenario: '日期类型',
+                examples: [
+                    {
+                        input: 'CREATE TABLE employees(hire_date DATE)',
+                        output: 'CREATE TABLE employees(hire_date TIMESTAMP)'
+                    }
+                ]
+            },
+            {
+                id: 14,
+                category: 'type',
+                oracleSyntax: 'CLOB',
+                yashanSyntax: 'TEXT',
+                scenario: '大文本类型',
+                examples: [
+                    {
+                        input: 'CREATE TABLE employees(resume CLOB)',
+                        output: 'CREATE TABLE employees(resume TEXT)'
+                    }
+                ]
+            },
+            {
+                id: 15,
+                category: 'type',
+                oracleSyntax: 'BLOB',
+                yashanSyntax: 'BYTEA',
+                scenario: '二进制数据类型',
+                examples: [
+                    {
+                        input: 'CREATE TABLE employees(photo BLOB)',
+                        output: 'CREATE TABLE employees(photo BYTEA)'
+                    }
+                ]
+            }
+        ];
+        
+        // 初始化规则表格
+        function initRulesTable() {
+            const tableBody = document.getElementById('rulesTableBody');
+            tableBody.innerHTML = '';
+            
+            fixRules.forEach(rule => {
+                const row = document.createElement('tr');
+                row.dataset.category = rule.category;
+                row.dataset.search = (rule.oracleSyntax + ' ' + rule.yashanSyntax + ' ' + rule.scenario).toLowerCase();
+                
+                let categoryClass = '';
+                let categoryText = '';
+                switch(rule.category) {
+                    case 'function':
+                        categoryClass = 'category-function';
+                        categoryText = '函数';
+                        break;
+                    case 'syntax':
+                        categoryClass = 'category-syntax';
+                        categoryText = '语法';
+                        break;
+                    case 'type':
+                        categoryClass = 'category-type';
+                        categoryText = '类型';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td><span class="rule-category ${categoryClass}">${categoryText}</span></td>
+                    <td>${rule.oracleSyntax}</td>
+                    <td>${rule.yashanSyntax}</td>
+                    <td>${rule.scenario}</td>
+                    <td><button class="expand-button" onclick="toggleRuleDetails(${rule.id})">查看示例</button></td>
+                `;
+                
+                tableBody.appendChild(row);
+                
+                // 添加详情行
+                const detailsRow = document.createElement('tr');
+                detailsRow.className = 'rule-details-row';
+                detailsRow.dataset.ruleId = rule.id;
+                
+                let examplesHtml = '';
+                rule.examples.forEach((example, index) => {
+                    examplesHtml += `
+                        <div class="rule-example">
+                            <h4>示例 ${index + 1}</h4>
+                            <p><strong>输入：</strong></p>
+                            <pre>${example.input}</pre>
+                            <p><strong>输出：</strong></p>
+                            <pre>${example.output}</pre>
+                        </div>
+                    `;
+                });
+                
+                detailsRow.innerHTML = `
+                    <td colspan="5">
+                        <div class="rule-details" id="ruleDetails-${rule.id}">
+                            ${examplesHtml}
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(detailsRow);
+            });
+        }
+        
+        // 切换规则详情显示
+        function toggleRuleDetails(ruleId) {
+            const detailsElement = document.getElementById(`ruleDetails-${ruleId}`);
+            if (detailsElement) {
+                detailsElement.classList.toggle('show');
+            }
+        }
+        
+        // 筛选规则（使用防抖优化）
+        const filterRules = debounce(function() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            const rows = document.querySelectorAll('#rulesTableBody tr');
+            rows.forEach(row => {
+                if (row.classList.contains('rule-details-row')) {
+                    // 详情行，根据对应的数据行显示/隐藏
+                    const ruleId = row.dataset.ruleId;
+                    const dataRow = document.querySelector(`tr[data-category]:not(.rule-details-row)`);
+                    if (dataRow) {
+                        const isVisible = dataRow.style.display !== 'none';
+                        row.style.display = isVisible ? '' : 'none';
+                    }
+                } else {
+                    // 数据行，根据筛选条件显示/隐藏
+                    const category = row.dataset.category;
+                    const searchText = row.dataset.search;
+                    
+                    const categoryMatch = categoryFilter === 'all' || category === categoryFilter;
+                    const searchMatch = searchTerm === '' || searchText.includes(searchTerm);
+                    
+                    row.style.display = (categoryMatch && searchMatch) ? '' : 'none';
+                }
+            });
+        }, 300);
+        
+        // 操作日志数据
+        let operationLogs = [];
+        
+        // 记录操作日志
+        function addLog(type, content, success = true, sql = '', fileName = '') {
+            const log = {
+                id: Date.now(),
+                type: type,
+                content: content,
+                success: success,
+                sql: sql,
+                fileName: fileName,
+                timestamp: new Date().toISOString()
+            };
+            
+            operationLogs.unshift(log); // 添加到数组开头，最新的日志显示在最前面
+            
+            // 限制日志数量，最多保存100条
+            if (operationLogs.length > 100) {
+                operationLogs = operationLogs.slice(0, 100);
+            }
+            
+            // 更新日志显示
+            renderLogs();
+        }
+        
+        // 渲染日志时间轴
+        function renderLogs() {
+            const timeline = document.getElementById('logsTimeline');
+            timeline.innerHTML = '';
+            
+            if (operationLogs.length === 0) {
+                timeline.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无操作日志</p>';
+                return;
+            }
+            
+            operationLogs.forEach(log => {
+                const logItem = document.createElement('div');
+                logItem.className = `timeline-item ${log.success ? 'success' : 'failed'}`;
+                
+                let typeText = '';
+                switch(log.type) {
+                    case 'scan': typeText = 'SQL扫描'; break;
+                    case 'convert': typeText = 'SQL修复'; break;
+                    case 'validate': typeText = 'SQL验证'; break;
+                    case 'upload': typeText = '文件上传'; break;
+                    case 'batch': typeText = '批量处理'; break;
+                    default: typeText = '未知操作';
+                }
+                
+                const timestamp = new Date(log.timestamp).toLocaleString('zh-CN');
+                
+                logItem.innerHTML = `
+                    <div class="timeline-header">
+                        <div class="timeline-type">${typeText}</div>
+                        <div class="timeline-time">${timestamp}</div>
+                    </div>
+                    <div class="timeline-content">${log.content}</div>
+                    ${log.fileName ? `<div class="timeline-content">文件：${log.fileName}</div>` : ''}
+                    <div class="timeline-result ${log.success ? 'success' : 'failed'}">
+                        ${log.success ? '成功' : '失败'}
+                    </div>
+                    ${log.sql ? `<div class="timeline-sql">${log.sql}</div>` : ''}
+                `;
+                
+                timeline.appendChild(logItem);
+            });
+        }
+        
+        // 筛选日志（使用防抖优化）
+        const filterLogs = debounce(function() {
+            const typeFilter = document.getElementById('logTypeFilter').value;
+            const searchTerm = document.getElementById('logSearchInput').value.toLowerCase();
+            
+            const timeline = document.getElementById('logsTimeline');
+            timeline.innerHTML = '';
+            
+            const filteredLogs = operationLogs.filter(log => {
+                const typeMatch = typeFilter === 'all' || log.type === typeFilter;
+                const searchMatch = searchTerm === '' || 
+                    log.content.toLowerCase().includes(searchTerm) ||
+                    log.sql.toLowerCase().includes(searchTerm) ||
+                    log.fileName.toLowerCase().includes(searchTerm);
+                return typeMatch && searchMatch;
+            });
+            
+            if (filteredLogs.length === 0) {
+                timeline.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">没有匹配的日志</p>';
+                return;
+            }
+            
+            filteredLogs.forEach(log => {
+                const logItem = document.createElement('div');
+                logItem.className = `timeline-item ${log.success ? 'success' : 'failed'}`;
+                
+                let typeText = '';
+                switch(log.type) {
+                    case 'scan': typeText = 'SQL扫描'; break;
+                    case 'convert': typeText = 'SQL修复'; break;
+                    case 'validate': typeText = 'SQL验证'; break;
+                    case 'upload': typeText = '文件上传'; break;
+                    case 'batch': typeText = '批量处理'; break;
+                    default: typeText = '未知操作';
+                }
+                
+                const timestamp = new Date(log.timestamp).toLocaleString('zh-CN');
+                
+                logItem.innerHTML = `
+                    <div class="timeline-header">
+                        <div class="timeline-type">${typeText}</div>
+                        <div class="timeline-time">${timestamp}</div>
+                    </div>
+                    <div class="timeline-content">${log.content}</div>
+                    ${log.fileName ? `<div class="timeline-content">文件：${log.fileName}</div>` : ''}
+                    <div class="timeline-result ${log.success ? 'success' : 'failed'}">
+                        ${log.success ? '成功' : '失败'}
+                    </div>
+                    ${log.sql ? `<div class="timeline-sql">${log.sql}</div>` : ''}
+                `;
+                
+                timeline.appendChild(logItem);
+            });
+        }, 300);
+        
+        // 清空日志
+        function clearLogs() {
+            if (confirm('确定要清空所有操作日志吗？')) {
+                operationLogs = [];
+                renderLogs();
+            }
+        }
+        
+        // 导出日志
+        function exportLogs() {
+            if (operationLogs.length === 0) {
+                alert('没有日志可导出');
+                return;
+            }
+            
+            const logsJson = JSON.stringify(operationLogs, null, 2);
+            const blob = new Blob([logsJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'operation_logs_' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // 修改scanSql函数，添加日志记录
+        function scanSql() {
+            const sql = document.getElementById('sqlInput').value;
+            if (!sql) {
+                alert('请输入SQL语句');
+                return;
+            }
+            
+            addLog('scan', '开始扫描SQL语句', true, sql);
+            
+            fetch('/api/sql/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'sql=' + encodeURIComponent(sql)
+            })
+            .then(response => response.json())
+            .then(data => {
+                addLog('scan', `扫描完成，${data.hasIssues ? '发现' + data.issues.length + '个问题' : '未发现问题'}`, true, sql);
+                
+                let resultHtml = '<h3>扫描结果</h3>';
+                
+                // 问题分级提示
+                if (data.hasIssues) {
+                    resultHtml += '<div class="issues-list">';
+                    resultHtml += '<h4>发现的问题：</h4>';
+                    data.issues.forEach(issue => {
+                        resultHtml += '<div class="issue-item">';
+                        resultHtml += getIssueLevelTag(issue.level) + issue.description;
+                        resultHtml += '</div>';
+                    });
+                    resultHtml += '</div>';
+                } else {
+                    resultHtml += '<p style="color: green;">未发现兼容性问题</p>';
+                }
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>原始Oracle SQL</h3>';
+                // 简单模拟差异标注，实际应该根据API返回的差异信息
+                let originalHighlighted = data.originalSql
+                    .replace(/dual/g, '<span class="diff-original">dual</span>')
+                    .replace(/DECODE/g, '<span class="diff-original">DECODE</span>')
+                    .replace(/NVL/g, '<span class="diff-original">NVL</span>')
+                    .replace(/SYSDATE/g, '<span class="diff-original">SYSDATE</span>')
+                    .replace(/TO_DATE/g, '<span class="diff-original">TO_DATE</span>')
+                    .replace(/TO_CHAR/g, '<span class="diff-original">TO_CHAR</span>')
+                    .replace(/VARCHAR2/g, '<span class="diff-original">VARCHAR2</span>')
+                    .replace(/NUMBER/g, '<span class="diff-original">NUMBER</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(originalHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>修复后YashanDB SQL</h3>';
+                // 调用转换API获取修复后的SQL
+                fetch('/api/sql/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'sql=' + encodeURIComponent(sql)
+                })
+                .then(response => response.json())
+                .then(convertData => {
+                    let fixedHighlighted = convertData.fixedSql
+                        .replace(/\(SELECT 1 AS dummy\)/g, '<span class="diff-fixed">(SELECT 1 AS dummy)</span>')
+                        .replace(/CASE/g, '<span class="diff-fixed">CASE</span>')
+                        .replace(/COALESCE/g, '<span class="diff-fixed">COALESCE</span>')
+                        .replace(/CURRENT_TIMESTAMP/g, '<span class="diff-fixed">CURRENT_TIMESTAMP</span>')
+                        .replace(/TO_TIMESTAMP/g, '<span class="diff-fixed">TO_TIMESTAMP</span>')
+                        .replace(/CAST/g, '<span class="diff-fixed">CAST</span>')
+                        .replace(/VARCHAR/g, '<span class="diff-fixed">VARCHAR</span>')
+                        .replace(/INTEGER/g, '<span class="diff-fixed">INTEGER</span>');
+                    resultHtml += '<div class="sql-content">' + highlightSql(fixedHighlighted) + '</div>';
+                    resultHtml += '</div>';
+                    resultHtml += '</div>';
+                    
+                    document.getElementById('resultContent').innerHTML = resultHtml;
+                })
+                .catch(error => {
+                    addLog('scan', '转换SQL失败', false, sql);
+                    resultHtml += '<div class="sql-content">转换失败：' + error.message + '</div>';
+                    resultHtml += '</div>';
+                    resultHtml += '</div>';
+                    
+                    document.getElementById('resultContent').innerHTML = resultHtml;
+                });
+            })
+            .catch(error => {
+                addLog('scan', '扫描SQL失败', false, sql);
+                document.getElementById('resultContent').innerHTML = '<div class="error">扫描失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 修改convertSql函数，添加日志记录
+        function convertSql() {
+            const sql = document.getElementById('sqlInput').value;
+            if (!sql) {
+                alert('请输入SQL语句');
+                return;
+            }
+            
+            addLog('convert', '开始修复SQL语句', true, sql);
+            
+            fetch('/api/sql/convert', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'sql=' + encodeURIComponent(sql)
+            })
+            .then(response => response.json())
+            .then(data => {
+                addLog('convert', '修复SQL语句成功', true, sql);
+                
+                let resultHtml = '<h3>修复结果</h3>';
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>原始Oracle SQL</h3>';
+                // 简单模拟差异标注，实际应该根据API返回的差异信息
+                let originalHighlighted = data.originalSql
+                    .replace(/dual/g, '<span class="diff-original">dual</span>')
+                    .replace(/DECODE/g, '<span class="diff-original">DECODE</span>')
+                    .replace(/NVL/g, '<span class="diff-original">NVL</span>')
+                    .replace(/SYSDATE/g, '<span class="diff-original">SYSDATE</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(originalHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>修复后YashanDB SQL</h3>';
+                let fixedHighlighted = data.fixedSql
+                    .replace(/\(SELECT 1 AS dummy\)/g, '<span class="diff-fixed">(SELECT 1 AS dummy)</span>')
+                    .replace(/CASE/g, '<span class="diff-fixed">CASE</span>')
+                    .replace(/COALESCE/g, '<span class="diff-fixed">COALESCE</span>')
+                    .replace(/CURRENT_TIMESTAMP/g, '<span class="diff-fixed">CURRENT_TIMESTAMP</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(fixedHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '</div>';
+                
+                document.getElementById('resultContent').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                addLog('convert', '修复SQL语句失败', false, sql);
+                document.getElementById('resultContent').innerHTML = '<div class="error">修复失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 修改uploadFile函数，添加日志记录
+        function uploadFile() {
+            const fileInput = document.getElementById('sqlFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('请选择SQL文件');
+                return;
+            }
+            
+            addLog('upload', `开始上传文件：${file.name}`, true, '', file.name);
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/sql/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                addLog('upload', `上传文件成功：${file.name}`, true, data.originalSql, file.name);
+                
+                let resultHtml = '<h3>文件修复结果</h3>';
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>原始Oracle SQL</h3>';
+                let originalHighlighted = data.originalSql
+                    .replace(/dual/g, '<span class="diff-original">dual</span>')
+                    .replace(/DECODE/g, '<span class="diff-original">DECODE</span>')
+                    .replace(/NVL/g, '<span class="diff-original">NVL</span>')
+                    .replace(/SYSDATE/g, '<span class="diff-original">SYSDATE</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(originalHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>修复后YashanDB SQL</h3>';
+                let fixedHighlighted = data.fixedSql
+                    .replace(/\(SELECT 1 AS dummy\)/g, '<span class="diff-fixed">(SELECT 1 AS dummy)</span>')
+                    .replace(/CASE/g, '<span class="diff-fixed">CASE</span>')
+                    .replace(/COALESCE/g, '<span class="diff-fixed">COALESCE</span>')
+                    .replace(/CURRENT_TIMESTAMP/g, '<span class="diff-fixed">CURRENT_TIMESTAMP</span>');
+                resultHtml += '<div class="sql-content">' + highlightSql(fixedHighlighted) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '</div>';
+                
+                document.getElementById('resultContent').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                addLog('upload', `上传文件失败：${file.name}`, false, '', file.name);
+                document.getElementById('resultContent').innerHTML = '<div class="error">上传失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 修改validateSql函数，添加日志记录
+        function validateSql() {
+            const sql = document.getElementById('sqlInput').value;
+            if (!sql) {
+                alert('请输入SQL语句');
+                return;
+            }
+            
+            addLog('validate', '开始验证SQL语句', true, sql);
+            
+            const startTime = performance.now();
+            
+            fetch('/api/sql/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'sql=' + encodeURIComponent(sql)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const endTime = performance.now();
+                const executionTime = (endTime - startTime).toFixed(2);
+                
+                addLog('validate', `验证SQL语句${data.success ? '成功' : '失败'}，耗时${executionTime}ms`, data.success, sql);
+                
+                let resultHtml = '<h3>验证结果</h3>';
+                
+                // 拆分视图展示
+                resultHtml += '<div class="split-view">';
+                resultHtml += '<div class="split-panel">';
+                resultHtml += '<h3>验证SQL</h3>';
+                resultHtml += '<div class="sql-content">' + highlightSql(data.originalSql) + '</div>';
+                resultHtml += '</div>';
+                resultHtml += '<div class="split-panel">';
+                
+                if (data.success) {
+                    resultHtml += `
+                        <div class="validation-result validation-success">
+                            <div class="validation-icon">✅</div>
+                            <div class="validation-content">
+                                <div class="validation-title">验证成功</div>
+                                <div class="validation-info">
+                                    <p>SQL可以在YashanDB中正常执行。</p>
+                                    <p>执行耗时：${executionTime}ms</p>
+                                </div>
+                                <div class="validation-actions">
+                                    <button class="export-result-button" onclick="exportValidationResult(${JSON.stringify(data)}, true, ${executionTime})">导出结果</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 分析错误信息，提供修复建议
+                    const errorMessage = data.fixedSql;
+                    const suggestedRules = getSuggestedRules(errorMessage);
+                    
+                    resultHtml += `
+                        <div class="validation-result validation-failure">
+                            <div class="validation-icon">❌</div>
+                            <div class="validation-content">
+                                <div class="validation-title">验证失败</div>
+                                <div class="validation-info">
+                                    <p>SQL无法在YashanDB中执行。</p>
+                                    <p>执行耗时：${executionTime}ms</p>
+                                    <button class="expand-button" onclick="toggleErrorDetails()">查看详细错误信息</button>
+                                </div>
+                                <div class="error-details" id="errorDetails">
+                                    <div class="error-message">${errorMessage}</div>
+                                    ${suggestedRules.length > 0 ? `
+                                        <div class="suggested-rules">
+                                            <h4>建议的修复规则：</h4>
+                                            ${suggestedRules.map(rule => `
+                                                <div class="suggested-rule-item">
+                                                    ${rule.oracleSyntax} → ${rule.yashanSyntax} (${rule.scenario})
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="validation-actions">
+                                    <button class="export-result-button" onclick="exportValidationResult(${JSON.stringify(data)}, false, ${executionTime}, '${errorMessage}')">导出结果</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                resultHtml += '</div>';
+                resultHtml += '</div>';
+                
+                document.getElementById('resultContent').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                addLog('validate', '验证SQL语句失败', false, sql);
+                document.getElementById('resultContent').innerHTML = '<div class="error">验证失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 修改batchUploadFiles函数，添加日志记录
+        function batchUploadFiles() {
+            const fileInput = document.getElementById('batchFiles');
+            const files = fileInput.files;
+            if (files.length === 0) {
+                alert('请选择要上传的SQL文件');
+                return;
+            }
+            
+            addLog('batch', `开始批量处理${files.length}个文件`, true, '', files.map(f => f.name).join(', '));
+            
+            // 显示进度容器
+            let progressHtml = '<h3>批量处理进度</h3>';
+            progressHtml += '<div class="progress-container">';
+            progressHtml += '<div class="progress-bar">';
+            progressHtml += '<div class="progress-fill" style="width: 0%"></div>';
+            progressHtml += '</div>';
+            progressHtml += '<div class="progress-info">';
+            progressHtml += '<span>进度：0%</span>';
+            progressHtml += '<span>剩余时间：计算中...</span>';
+            progressHtml += '</div>';
+            progressHtml += '<div class="file-status-list" id="fileStatusList">';
+            // 添加每个文件的初始状态
+            for (let i = 0; i < files.length; i++) {
+                progressHtml += '<div class="file-status-item">';
+                progressHtml += '<span class="file-status-icon">⌛</span>';
+                progressHtml += '<span class="file-status-name">' + files[i].name + '</span>';
+                progressHtml += '<span class="file-status-detail">处理中...</span>';
+                progressHtml += '</div>';
+            }
+            progressHtml += '</div>';
+            progressHtml += '</div>';
+            
+            document.getElementById('resultContent').innerHTML = progressHtml;
+            
+            // 模拟进度更新
+            let progress = 0;
+            const totalFiles = files.length;
+            const progressInterval = setInterval(() => {
+                progress += 100 / (totalFiles * 2); // 每个文件分两步处理
+                if (progress > 100) progress = 100;
+                
+                document.querySelector('.progress-fill').style.width = progress + '%';
+                document.querySelector('.progress-info span:first-child').textContent = '进度：' + Math.round(progress) + '%';
+                
+                // 计算剩余时间（模拟）
+                const remainingTime = Math.round((100 - progress) / (progress / 2));
+                document.querySelector('.progress-info span:last-child').textContent = '剩余时间：' + remainingTime + '秒';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 500);
+            
+            // 构建FormData
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            
+            // 发送请求
+            fetch('/api/sql/batch/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                
+                // 更新进度为100%
+                document.querySelector('.progress-fill').style.width = '100%';
+                document.querySelector('.progress-info span:first-child').textContent = '进度：100%';
+                document.querySelector('.progress-info span:last-child').textContent = '剩余时间：0秒';
+                
+                // 更新文件状态
+                const fileStatusList = document.getElementById('fileStatusList');
+                fileStatusList.innerHTML = '';
+                
+                let successCount = 0;
+                let failedCount = 0;
+                let warningCount = 0;
+                
+                data.forEach((result, index) => {
+                    let statusIcon = '✅';
+                    let statusClass = '';
+                    
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        failedCount++;
+                        statusIcon = '❌';
+                    }
+                    
+                    // 检查是否有警告（这里简单模拟，实际应该根据API返回）
+                    if (result.originalSql.includes('VARCHAR2') || result.originalSql.includes('NUMBER')) {
+                        warningCount++;
+                        statusIcon = '⚠️';
+                    }
+                    
+                    const statusItem = document.createElement('div');
+                    statusItem.className = 'file-status-item';
+                    statusItem.innerHTML = `
+                        <span class="file-status-icon">${statusIcon}</span>
+                        <span class="file-status-name">${files[index].name}</span>
+                        <span class="file-status-detail">${result.success ? '成功' : '失败'}</span>
+                    `;
+                    fileStatusList.appendChild(statusItem);
+                });
+                
+                // 添加汇总面板
+                const summaryHtml = `
+                    <div class="summary-panel">
+                        <h3>处理汇总</h3>
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${totalFiles}</div>
+                                <div class="summary-stat-label">总文件数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${successCount}</div>
+                                <div class="summary-stat-label">成功数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${failedCount}</div>
+                                <div class="summary-stat-label">失败数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${warningCount}</div>
+                                <div class="summary-stat-label">警告数</div>
+                            </div>
+                        </div>
+                        <button class="export-button" onclick="exportReport(${JSON.stringify(data)}, ${totalFiles}, ${successCount}, ${failedCount}, ${warningCount})">导出处理报告</button>
+                    </div>
+                `;
+                
+                document.getElementById('resultContent').insertAdjacentHTML('beforeend', summaryHtml);
+                
+                addLog('batch', `批量处理完成，成功${successCount}个，失败${failedCount}个，警告${warningCount}个`, true, '', files.map(f => f.name).join(', '));
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                addLog('batch', '批量处理失败', false, '', files.map(f => f.name).join(', '));
+                document.getElementById('resultContent').innerHTML = '<div class="error">批量处理失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 统计数据
+        let statistics = {
+            totalSqlCount: 0,
+            totalFileCount: 0,
+            successCount: 0,
+            totalRulesCount: 0,
+            issueLevels: {
+                severe: 0,
+                medium: 0,
+                minor: 0
+            },
+            ruleUsage: {} // 规则使用次数
+        };
+        
+        // 记录统计数据
+        function updateStatistics(type, success, sql, fileName) {
+            if (type === 'scan' || type === 'convert' || type === 'validate') {
+                statistics.totalSqlCount++;
+                if (success) {
+                    statistics.successCount++;
+                }
+            }
+            
+            if (type === 'upload' || type === 'batch') {
+                if (type === 'upload') {
+                    statistics.totalFileCount++;
+                } else if (type === 'batch') {
+                    // 批量处理时，文件名包含多个文件，按逗号分割
+                    const fileCount = fileName.split(',').length;
+                    statistics.totalFileCount += fileCount;
+                }
+            }
+            
+            // 分析SQL中的规则使用情况
+            if (sql) {
+                fixRules.forEach(rule => {
+                    if (sql.includes(rule.oracleSyntax)) {
+                        if (!statistics.ruleUsage[rule.oracleSyntax]) {
+                            statistics.ruleUsage[rule.oracleSyntax] = 0;
+                        }
+                        statistics.ruleUsage[rule.oracleSyntax]++;
+                        statistics.totalRulesCount++;
+                    }
+                });
+            }
+            
+            // 模拟问题等级统计
+            if (type === 'scan') {
+                // 简单模拟，实际应该根据扫描结果
+                const randomLevel = Math.random();
+                if (randomLevel < 0.3) {
+                    statistics.issueLevels.severe++;
+                } else if (randomLevel < 0.6) {
+                    statistics.issueLevels.medium++;
+                } else {
+                    statistics.issueLevels.minor++;
+                }
+            }
+            
+            // 更新仪表盘
+            updateDashboard();
+        }
+        
+        // 更新仪表盘（使用防抖优化）
+        const updateDashboard = debounce(function() {
+            const timeFilter = document.getElementById('timeFilter').value;
+            
+            // 更新统计卡片
+            document.getElementById('totalSqlCount').textContent = statistics.totalSqlCount;
+            document.getElementById('totalFileCount').textContent = statistics.totalFileCount;
+            
+            const successRate = statistics.totalSqlCount > 0 ? Math.round((statistics.successCount / statistics.totalSqlCount) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            document.getElementById('totalRulesCount').textContent = statistics.totalRulesCount;
+            
+            // 更新问题分级饼图
+            updateIssuePieChart();
+            
+            // 更新修复规则使用频次柱状图
+            updateRuleBarChart();
+            
+            // 更新Top10规则列表
+            updateTopRulesList();
+        }, 300);
+        
+        // 更新问题分级饼图
+        function updateIssuePieChart() {
+            const ctx = document.getElementById('issuePieChart').getContext('2d');
+            
+            // 销毁现有图表
+            if (window.issuePieChart) {
+                window.issuePieChart.destroy();
+            }
+            
+            window.issuePieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['严重', '中等', '轻微'],
+                    datasets: [{
+                        data: [
+                            statistics.issueLevels.severe,
+                            statistics.issueLevels.medium,
+                            statistics.issueLevels.minor
+                        ],
+                        backgroundColor: [
+                            '#f44336',
+                            '#ff9800',
+                            '#4CAF50'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新修复规则使用频次柱状图
+        function updateRuleBarChart() {
+            const ctx = document.getElementById('ruleBarChart').getContext('2d');
+            
+            // 销毁现有图表
+            if (window.ruleBarChart) {
+                window.ruleBarChart.destroy();
+            }
+            
+            // 转换ruleUsage对象为数组并排序
+            const ruleArray = Object.entries(statistics.ruleUsage)
+                .map(([name, count]) => ({ name, count }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5); // 只显示前5个
+            
+            const labels = ruleArray.map(rule => rule.name);
+            const data = ruleArray.map(rule => rule.count);
+            
+            window.ruleBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '使用次数',
+                        data: data,
+                        backgroundColor: '#2196F3',
+                        borderColor: '#1976D2',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新Top10规则列表
+        function updateTopRulesList() {
+            const topRulesList = document.getElementById('topRulesList');
+            topRulesList.innerHTML = '';
+            
+            // 转换ruleUsage对象为数组并排序
+            const ruleArray = Object.entries(statistics.ruleUsage)
+                .map(([name, count]) => ({ name, count }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 10); // 只显示前10个
+            
+            if (ruleArray.length === 0) {
+                topRulesList.innerHTML = '<li class="top-rule-item"><span class="top-rule-name">暂无数据</span><span class="top-rule-count">0</span></li>';
+                return;
+            }
+            
+            ruleArray.forEach(rule => {
+                const li = document.createElement('li');
+                li.className = 'top-rule-item';
+                li.innerHTML = `
+                    <span class="top-rule-name">${rule.name}</span>
+                    <span class="top-rule-count">${rule.count}</span>
+                `;
+                topRulesList.appendChild(li);
+            });
+        }
+        
+        // 修改addLog函数，添加统计数据更新
+        function addLog(type, content, success = true, sql = '', fileName = '') {
+            const log = {
+                id: Date.now(),
+                type: type,
+                content: content,
+                success: success,
+                sql: sql,
+                fileName: fileName,
+                timestamp: new Date().toISOString()
+            };
+            
+            operationLogs.unshift(log); // 添加到数组开头，最新的日志显示在最前面
+            
+            // 限制日志数量，最多保存100条
+            if (operationLogs.length > 100) {
+                operationLogs = operationLogs.slice(0, 100);
+            }
+            
+            // 更新统计数据
+            updateStatistics(type, success, sql, fileName);
+            
+            // 更新日志显示
+            renderLogs();
+        }
+        
+        // 存储批量上传的文件
+        let batchFiles = [];
+        
+        // 初始化拖拽上传功能
+        function initDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const batchFilesInput = document.getElementById('batchFiles');
+            
+            // 拖拽事件
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropZone.classList.add('active');
+            });
+            
+            dropZone.addEventListener('dragleave', function() {
+                dropZone.classList.remove('active');
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropZone.classList.remove('active');
+                
+                const files = e.dataTransfer.files;
+                addFilesToBatch(files);
+            });
+            
+            // 文件选择事件
+            batchFilesInput.addEventListener('change', function() {
+                addFilesToBatch(this.files);
+            });
+        }
+        
+        // 添加文件到批量上传列表
+        function addFilesToBatch(files) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type === 'application/sql' || file.name.endsWith('.sql')) {
+                    // 检查文件是否已存在
+                    const existingFileIndex = batchFiles.findIndex(f => f.name === file.name && f.size === file.size);
+                    if (existingFileIndex === -1) {
+                        batchFiles.push(file);
+                    }
+                }
+            }
+            updateFileList();
+        }
+        
+        // 更新文件列表显示
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            const batchProcessButton = document.getElementById('batchProcessButton');
+            
+            fileList.innerHTML = '';
+            
+            if (batchFiles.length === 0) {
+                batchProcessButton.disabled = true;
+                return;
+            }
+            
+            batchProcessButton.disabled = false;
+            
+            batchFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button class="remove-file" onclick="removeFile(${index})">删除</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 删除文件
+        function removeFile(index) {
+            batchFiles.splice(index, 1);
+            updateFileList();
+        }
+        
+        // 修改batchUploadFiles函数，使用批量上传文件数组
+        function batchUploadFiles() {
+            if (batchFiles.length === 0) {
+                alert('请选择要上传的SQL文件');
+                return;
+            }
+            
+            addLog('batch', `开始批量处理${batchFiles.length}个文件`, true, '', batchFiles.map(f => f.name).join(', '));
+            
+            // 显示进度容器
+            let progressHtml = '<h3>批量处理进度</h3>';
+            progressHtml += '<div class="progress-container">';
+            progressHtml += '<div class="progress-bar">';
+            progressHtml += '<div class="progress-fill" style="width: 0%"></div>';
+            progressHtml += '</div>';
+            progressHtml += '<div class="progress-info">';
+            progressHtml += '<span>进度：0%</span>';
+            progressHtml += '<span>剩余时间：计算中...</span>';
+            progressHtml += '</div>';
+            progressHtml += '<div class="file-status-list" id="fileStatusList">';
+            // 添加每个文件的初始状态
+            for (let i = 0; i < batchFiles.length; i++) {
+                progressHtml += '<div class="file-status-item">';
+                progressHtml += '<span class="file-status-icon">⌛</span>';
+                progressHtml += '<span class="file-status-name">' + batchFiles[i].name + '</span>';
+                progressHtml += '<span class="file-status-detail">处理中...</span>';
+                progressHtml += '</div>';
+            }
+            progressHtml += '</div>';
+            progressHtml += '</div>';
+            
+            document.getElementById('resultContent').innerHTML = progressHtml;
+            
+            // 模拟进度更新
+            let progress = 0;
+            const totalFiles = batchFiles.length;
+            const progressInterval = setInterval(() => {
+                progress += 100 / (totalFiles * 2); // 每个文件分两步处理
+                if (progress > 100) progress = 100;
+                
+                document.querySelector('.progress-fill').style.width = progress + '%';
+                document.querySelector('.progress-info span:first-child').textContent = '进度：' + Math.round(progress) + '%';
+                
+                // 计算剩余时间（模拟）
+                const remainingTime = Math.round((100 - progress) / (progress / 2));
+                document.querySelector('.progress-info span:last-child').textContent = '剩余时间：' + remainingTime + '秒';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 500);
+            
+            // 构建FormData
+            const formData = new FormData();
+            for (let i = 0; i < batchFiles.length; i++) {
+                formData.append('files', batchFiles[i]);
+            }
+            
+            // 发送请求
+            fetch('/api/sql/batch/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                
+                // 更新进度为100%
+                document.querySelector('.progress-fill').style.width = '100%';
+                document.querySelector('.progress-info span:first-child').textContent = '进度：100%';
+                document.querySelector('.progress-info span:last-child').textContent = '剩余时间：0秒';
+                
+                // 更新文件状态
+                const fileStatusList = document.getElementById('fileStatusList');
+                fileStatusList.innerHTML = '';
+                
+                let successCount = 0;
+                let failedCount = 0;
+                let warningCount = 0;
+                
+                data.forEach((result, index) => {
+                    let statusIcon = '✅';
+                    let statusClass = '';
+                    
+                    if (result.success) {
+                        successCount++;
+                    } else {
+                        failedCount++;
+                        statusIcon = '❌';
+                    }
+                    
+                    // 检查是否有警告（这里简单模拟，实际应该根据API返回）
+                    if (result.originalSql.includes('VARCHAR2') || result.originalSql.includes('NUMBER')) {
+                        warningCount++;
+                        statusIcon = '⚠️';
+                    }
+                    
+                    const statusItem = document.createElement('div');
+                    statusItem.className = 'file-status-item';
+                    let detailText = result.success ? '成功' : '失败';
+                    if (!result.success && result.fixedSql) {
+                        detailText = '失败: ' + result.fixedSql.substring(0, 50) + (result.fixedSql.length > 50 ? '...' : '');
+                    }
+                    statusItem.innerHTML = `
+                        <span class="file-status-icon">${statusIcon}</span>
+                        <span class="file-status-name">${batchFiles[index].name}</span>
+                        <span class="file-status-detail">${detailText}</span>
+                    `;
+                    fileStatusList.appendChild(statusItem);
+                });
+                
+                // 添加汇总面板
+                const summaryHtml = `
+                    <div class="summary-panel">
+                        <h3>处理汇总</h3>
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${totalFiles}</div>
+                                <div class="summary-stat-label">总文件数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${successCount}</div>
+                                <div class="summary-stat-label">成功数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${failedCount}</div>
+                                <div class="summary-stat-label">失败数</div>
+                            </div>
+                            <div class="summary-stat">
+                                <div class="summary-stat-value">${warningCount}</div>
+                                <div class="summary-stat-label">警告数</div>
+                            </div>
+                        </div>
+                        <button class="export-button" onclick="exportReport(${JSON.stringify(data)}, ${totalFiles}, ${successCount}, ${failedCount}, ${warningCount})">导出处理报告</button>
+                    </div>
+                `;
+                
+                document.getElementById('resultContent').insertAdjacentHTML('beforeend', summaryHtml);
+                
+                addLog('batch', `批量处理完成，成功${successCount}个，失败${failedCount}个，警告${warningCount}个`, true, '', batchFiles.map(f => f.name).join(', '));
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                addLog('batch', '批量处理失败', false, '', batchFiles.map(f => f.name).join(', '));
+                document.getElementById('resultContent').innerHTML = '<div class="error">批量处理失败：' + error.message + '</div>';
+            });
+        }
+        
+        // 引导流程
+        let currentGuideStep = 0;
+        const guideSteps = [
+            {
+                element: '#sqlInput',
+                position: 'bottom',
+                offsetX: 0,
+                offsetY: 20
+            },
+            {
+                element: 'button[onclick="scanSql()"]',
+                position: 'right',
+                offsetX: 20,
+                offsetY: 0
+            },
+            {
+                element: 'button[onclick="convertSql()"]',
+                position: 'right',
+                offsetX: 20,
+                offsetY: 0
+            },
+            {
+                element: 'button[onclick="validateSql()"]',
+                position: 'right',
+                offsetX: 20,
+                offsetY: 0
+            }
+        ];
+        
+        // 初始化引导流程
+        function initGuide() {
+            // 检查是否首次访问
+            const hasSeenGuide = localStorage.getItem('hasSeenGuide');
+            if (!hasSeenGuide) {
+                showGuide();
+                localStorage.setItem('hasSeenGuide', 'true');
+            }
+        }
+        
+        // 显示引导
+        function showGuide() {
+            const overlay = document.getElementById('guideOverlay');
+            overlay.style.display = 'block';
+            currentGuideStep = 0;
+            updateGuideStep();
+        }
+        
+        // 关闭引导
+        function closeGuide() {
+            const overlay = document.getElementById('guideOverlay');
+            overlay.style.display = 'none';
+            removeHighlight();
+        }
+        
+        // 下一个步骤
+        function nextGuideStep() {
+            if (currentGuideStep < guideSteps.length - 1) {
+                currentGuideStep++;
+                updateGuideStep();
+            }
+        }
+        
+        // 上一个步骤
+        function prevGuideStep() {
+            if (currentGuideStep > 0) {
+                currentGuideStep--;
+                updateGuideStep();
+            }
+        }
+        
+        // 更新引导步骤
+        function updateGuideStep() {
+            // 隐藏所有步骤
+            for (let i = 1; i <= guideSteps.length; i++) {
+                document.getElementById('guideStep' + i).style.display = 'none';
+            }
+            
+            // 显示当前步骤
+            const currentStepElement = document.getElementById('guideStep' + (currentGuideStep + 1));
+            currentStepElement.style.display = 'block';
+            
+            // 定位引导步骤
+            const targetElement = document.querySelector(guideSteps[currentGuideStep].element);
+            if (targetElement) {
+                removeHighlight();
+                targetElement.classList.add('highlight-element');
+                
+                const rect = targetElement.getBoundingClientRect();
+                const stepRect = currentStepElement.getBoundingClientRect();
+                
+                let top, left;
+                const position = guideSteps[currentGuideStep].position;
+                const offsetX = guideSteps[currentGuideStep].offsetX;
+                const offsetY = guideSteps[currentGuideStep].offsetY;
+                
+                switch(position) {
+                    case 'top':
+                        top = rect.top - stepRect.height - offsetY;
+                        left = rect.left + (rect.width - stepRect.width) / 2 + offsetX;
+                        break;
+                    case 'bottom':
+                        top = rect.bottom + offsetY;
+                        left = rect.left + (rect.width - stepRect.width) / 2 + offsetX;
+                        break;
+                    case 'left':
+                        top = rect.top + (rect.height - stepRect.height) / 2 + offsetY;
+                        left = rect.left - stepRect.width - offsetX;
+                        break;
+                    case 'right':
+                        top = rect.top + (rect.height - stepRect.height) / 2 + offsetY;
+                        left = rect.right + offsetX;
+                        break;
+                }
+                
+                // 确保引导步骤在视口中
+                top = Math.max(20, top);
+                left = Math.max(20, left);
+                
+                currentStepElement.style.top = top + 'px';
+                currentStepElement.style.left = left + 'px';
+                currentStepElement.className = 'guide-step ' + position;
+            }
+        }
+        
+        // 移除高亮
+        function removeHighlight() {
+            const highlightedElements = document.querySelectorAll('.highlight-element');
+            highlightedElements.forEach(element => {
+                element.classList.remove('highlight-element');
+            });
+        }
+        
+        // 主题切换函数
+        function toggleTheme() {
+            const body = document.body;
+            const themeButton = document.getElementById('themeToggle');
+            const isDark = body.classList.toggle('dark-theme');
+            
+            // 更新按钮文本
+            themeButton.textContent = isDark ? '切换到浅色主题' : '切换到深色主题';
+            
+            // 保存主题偏好到localStorage
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        
+        // 布局调整函数（使用节流优化）
+        const adjustLayout = throttle(function(value) {
+            const splitPanels = document.querySelectorAll('.split-panel');
+            const layoutValue = document.getElementById('layoutValue');
+            
+            if (splitPanels.length >= 2) {
+                splitPanels[0].style.flex = value;
+                splitPanels[1].style.flex = 100 - value;
+                layoutValue.textContent = `${value}:${100 - value}`;
+                
+                // 保存布局偏好到localStorage
+                localStorage.setItem('layout', value);
+            }
+        }, 100);
+        
+        // 加载用户偏好设置
+        function loadUserPreferences() {
+            // 加载主题偏好
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeToggle').textContent = '切换到浅色主题';
+            }
+            
+            // 加载布局偏好
+            const savedLayout = localStorage.getItem('layout');
+            if (savedLayout) {
+                document.getElementById('layoutSlider').value = savedLayout;
+                adjustLayout(savedLayout);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = function() {
+            initRulesTable();
+            renderLogs();
+            updateDashboard();
+            initDragAndDrop();
+            initGuide();
+            loadUserPreferences();
+        };
+    </script>
+</body>
+</html>

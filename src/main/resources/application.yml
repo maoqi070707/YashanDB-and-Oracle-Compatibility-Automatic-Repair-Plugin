@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: sql-fix-plugin
+  
+server:
+  port: 8080
+  
+logging:
+  level:
+    root: info
+    com.yashan.sqlfix: debug
+  
+# YashanDB连接配置
+yashandb:
+  url: jdbc:yashandb://localhost:12888/test
+  username: sys
+  password: sys
+  driver-class-name: com.yashandb.jdbc.Driver
