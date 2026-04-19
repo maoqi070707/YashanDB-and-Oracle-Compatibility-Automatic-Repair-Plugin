@@ -24,13 +24,6 @@ public class SqlConvertService {
             fixedSql = oracleSql;
         }
         
-        // 如果AST解析失败，使用简单的字符串替换作为后备
-        if (fixedSql.equals(oracleSql)) {
-            fixedSql = FunctionRule.applyAllFunctionRules(fixedSql);
-            fixedSql = SyntaxRule.applyAllSyntaxRules(fixedSql);
-            fixedSql = TypeRule.applyAllTypeRules(fixedSql);
-        }
-        
         return fixedSql;
     }
     

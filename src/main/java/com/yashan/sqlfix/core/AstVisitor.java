@@ -33,6 +33,12 @@ public class AstVisitor extends OracleSqlBaseVisitor<String> {
             return visit(ctx.commit_statement());
         } else if (ctx.rollback_statement() != null) {
             return visit(ctx.rollback_statement());
+        } else if (ctx.create_procedure_statement() != null) {
+            return visit(ctx.create_procedure_statement());
+        } else if (ctx.create_function_statement() != null) {
+            return visit(ctx.create_function_statement());
+        } else if (ctx.create_trigger_statement() != null) {
+            return visit(ctx.create_trigger_statement());
         }
         return ctx.getText();
     }
@@ -43,11 +49,18 @@ public class AstVisitor extends OracleSqlBaseVisitor<String> {
         String fromClause = visit(ctx.from_clause());
         String result = "SELECT " + selectList + " FROM " + fromClause;
         
-        // 转换ROWNUM限制（使用简单的字符串替换）
-        String originalText = ctx.getText();
-        if (originalText.contains("ROWNUM")) {
+        // 处理WHERE子句
+        if (ctx.condition() != null) {
+            String condition = visit(ctx.condition());
+            result += " WHERE " + condition;
+        }
+        
+        // 转换ROWNUM限制
+        if (result.contains("ROWNUM")) {
             result = result.replace("WHERE ROWNUM <= ", "LIMIT ");
+            result = result.replace("WHERE ROWNUM<=", "LIMIT ");
             result = result.replace("WHERE ROWNUM = 1", "LIMIT 1");
+            result = result.replace("WHERE ROWNUM=1", "LIMIT 1");
         }
         
         return result;
@@ -127,6 +140,107 @@ public class AstVisitor extends OracleSqlBaseVisitor<String> {
     
     @Override
     public String visitRollback_statement(OracleSqlParser.Rollback_statementContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitCreate_procedure_statement(OracleSqlParser.Create_procedure_statementContext ctx) {
+        String text = ctx.getText();
+        // 转换存储过程定义
+        text = text.replace("CREATE PROCEDURE", "CREATE OR REPLACE PROCEDURE");
+        // 转换类型
+        text = text.replace("VARCHAR2", "VARCHAR");
+        text = text.replace("NUMBER", "INTEGER");
+        text = text.replace("DATE", "TIMESTAMP");
+        text = text.replace("CLOB", "TEXT");
+        text = text.replace("BLOB", "BYTEA");
+        text = text.replace("PLS_INTEGER", "INTEGER");
+        return text;
+    }
+    
+    @Override
+    public String visitCreate_function_statement(OracleSqlParser.Create_function_statementContext ctx) {
+        String text = ctx.getText();
+        // 转换函数定义
+        text = text.replace("CREATE FUNCTION", "CREATE OR REPLACE FUNCTION");
+        // 转换类型
+        text = text.replace("VARCHAR2", "VARCHAR");
+        text = text.replace("NUMBER", "INTEGER");
+        text = text.replace("DATE", "TIMESTAMP");
+        text = text.replace("CLOB", "TEXT");
+        text = text.replace("BLOB", "BYTEA");
+        text = text.replace("PLS_INTEGER", "INTEGER");
+        return text;
+    }
+    
+    @Override
+    public String visitCreate_trigger_statement(OracleSqlParser.Create_trigger_statementContext ctx) {
+        String text = ctx.getText();
+        // 转换触发器定义
+        text = text.replace("CREATE TRIGGER", "CREATE OR REPLACE TRIGGER");
+        return text;
+    }
+    
+    @Override
+    public String visitParameter(OracleSqlParser.ParameterContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitDeclare_section(OracleSqlParser.Declare_sectionContext ctx) {
+        String text = ctx.getText();
+        // 转换类型
+        text = text.replace("VARCHAR2", "VARCHAR");
+        text = text.replace("NUMBER", "INTEGER");
+        text = text.replace("DATE", "TIMESTAMP");
+        text = text.replace("CLOB", "TEXT");
+        text = text.replace("BLOB", "BYTEA");
+        text = text.replace("PLS_INTEGER", "INTEGER");
+        return text;
+    }
+    
+    @Override
+    public String visitVariable_declaration(OracleSqlParser.Variable_declarationContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitBegin_section(OracleSqlParser.Begin_sectionContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitStatement(OracleSqlParser.StatementContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitIf_statement(OracleSqlParser.If_statementContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitLoop_statement(OracleSqlParser.Loop_statementContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitWhile_statement(OracleSqlParser.While_statementContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitReturn_statement(OracleSqlParser.Return_statementContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitAssignment_statement(OracleSqlParser.Assignment_statementContext ctx) {
+        return ctx.getText();
+    }
+    
+    @Override
+    public String visitCondition(OracleSqlParser.ConditionContext ctx) {
         return ctx.getText();
     }
 }
